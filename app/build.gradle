@@ -6,8 +6,8 @@ android {
         applicationId "net.schueller.peertube"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 1039
-        versionName "1.0.39"
+        versionCode 1041
+        versionName "1.0.41"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ext {
             libVersions = [
@@ -85,6 +85,7 @@ android {
 }
 
 dependencies {
+
     def room_version = "2.2.5"
     def archLifecycleVersion = '2.1.0'
 
@@ -104,4 +105,5 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:$archLifecycleVersion"
     annotationProcessor "androidx.lifecycle:lifecycle-common-java8:$archLifecycleVersion"
 
+    implementation 'androidx.preference:preference:1.1.1'
 }
