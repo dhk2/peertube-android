@@ -4,6 +4,9 @@
         android:id="@+id/video_more_report"
         android:title="@string/menu_video_more_report" />
     <item
-        android:id="@+id/video_more_blacklist"
-        android:title="@string/menu_video_more_blacklist" />
+    android:id="@+id/video_more_blacklist"
+    android:title="@string/menu_video_more_blacklist" />
+    <item
+        android:id="@+id/video_more_seed"
+        android:title="@string/menu_video_more_seed" />
 </menu>

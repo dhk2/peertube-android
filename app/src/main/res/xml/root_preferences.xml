@@ -74,6 +74,14 @@
             app:title="@string/pref_title_torrent_player"
             app:iconSpaceReserved="false"/>
 
+        <SwitchPreference
+            app:defaultValue="false"
+            app:key="pref_torrent_seed_libre"
+            app:summary="@string/pref_description_torrent_seed_libre"
+            app:title="@string/pref_title_torrent_seed_libre"
+            app:iconSpaceReserved="false"
+            app:enabled="false"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/settings_activity_about_category_title" app:iconSpaceReserved="false">

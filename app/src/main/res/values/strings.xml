@@ -48,7 +48,9 @@
     <string name="pref_title_app_theme">App Theme</string>
     <string name="pref_description_app_theme">Restart app for theme to take effect.</string>
     <string name="pref_title_torrent_player">Torrent Video Player</string>
+    <string name="pref_title_torrent_seed_libre">LibreTorrent Seeding</string>
     <string name="pref_description_torrent_player">Video playback via a torrent stream. This requires Storage Permissions. (Alpha, not stable!)</string>
+    <string name="pref_description_torrent_seed_libre">use libretorrent to seed videos</string>
     <string name="pref_title_license">License</string>
     <string name="pref_description_license">\n<b>GNU Affero General Public License v3.0</b>\n\nPermissions of this strongest copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights. When a modified version is used to provide a service over a network, the complete source code of the modified version must be made available.</string>
     <string name="pref_title_version">Version</string>
@@ -314,6 +316,7 @@
     <string name="title_activity_account">Account</string>
     <string name="menu_video_more_report">Report</string>
     <string name="menu_video_more_blacklist">Blacklist</string>
+    <string name="menu_video_more_seed">Seed</string>
     <string name="video_download_permission_error">Can not download video without write permission</string>
     <string name="video_rating_failed">Rating Failed</string>
     <string name="video_login_required_for_service">You must log in to use this service</string>

@@ -20,10 +20,14 @@ package net.schueller.peertube.fragment;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -34,15 +38,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.se_bastiaan.torrentstream.StreamStatus;
+import com.github.se_bastiaan.torrentstream.Torrent;
+import com.github.se_bastiaan.torrentstream.TorrentOptions;
+import com.github.se_bastiaan.torrentstream.TorrentStream;
+import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
 import com.mikepenz.iconics.Iconics;
 import com.squareup.picasso.Picasso;
 
 import net.schueller.peertube.R;
+import net.schueller.peertube.adapter.ServerListAdapter;
+import net.schueller.peertube.adapter.VideoAdapter;
+import net.schueller.peertube.database.VideoDao;
+import net.schueller.peertube.database.VideoViewModel;
 import net.schueller.peertube.helper.APIUrlHelper;
 import net.schueller.peertube.helper.MetaDataHelper;
 import net.schueller.peertube.intents.Intents;
 import net.schueller.peertube.model.Account;
 import net.schueller.peertube.model.Avatar;
+import net.schueller.peertube.model.File;
 import net.schueller.peertube.model.Rating;
 import net.schueller.peertube.model.Video;
 import net.schueller.peertube.network.GetVideoDataService;
@@ -55,6 +69,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -67,10 +87,19 @@ public class VideoMetaDataFragment extends Fragment {
 
     private Rating videoRating;
     private ColorStateList defaultTextColor;
-
+    VideoViewModel mVideoViewModel;
+    ArrayList<Video> history;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        history = new ArrayList<Video>();
+        mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
+        VideoAdapter historyAdapter = new VideoAdapter(history,getContext());
+        Log.e("history 1:",Integer.toString(historyAdapter.getItemCount()));
+        Log.e("history 2:",Integer.toString(history.size()));
+        for (Video his : history){
+            Log.e("checking history:",his.getName());
+        };
 
 
         // Inflate the layout for this fragment
@@ -237,6 +266,10 @@ public class VideoMetaDataFragment extends Fragment {
                         Log.v(TAG, "Blacklist");
                         Toast.makeText(context, "Not Implemented", Toast.LENGTH_SHORT).show();
                         return true;
+                    case R.id.video_more_seed:
+                        Log.v(TAG, "seed");
+                        Seed(context,video);
+                        return true;
                     default:
                         return false;
                 }
@@ -344,6 +377,74 @@ public class VideoMetaDataFragment extends Fragment {
 
         }
 
+    }
+    public void Seed(Context context, Video video) {
+        mVideoViewModel.insert(video);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        if (sharedPref.getBoolean("pref_torrent_seed_libre",false)){
+            Intents.SeedWithLibre(context,video);
+        } else {
+
+            Intent intent = new Intent();
+            Integer videoQuality = sharedPref.getInt("pref_quality", 0);
+            String urlToTorrent = video.getFiles().get(0).getTorrentUrl();
+            for (File file : video.getFiles()) {
+                // Set quality if it matches
+                if (file.getResolution().getId().equals(videoQuality)) {
+                    urlToTorrent = file.getTorrentUrl();
+                }
+            }
+
+            TorrentStream torrentStream;
+            TorrentOptions torrentOptions = new TorrentOptions.Builder()
+                    .saveLocation(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
+                    .removeFilesAfterStop(false)
+                    .build();
+
+            torrentStream = TorrentStream.init(torrentOptions);
+
+            torrentStream.addListener(new TorrentListener() {
+
+
+                @Override
+                public void onStreamStopped() {
+                    Log.d(TAG, "Stopped");
+                }
+
+                @Override
+                public void onStreamPrepared(Torrent torrent) {
+                    Log.d(TAG, "Prepared");
+                }
+
+                @Override
+                public void onStreamStarted(Torrent torrent) {
+                    Log.d(TAG, "Started");
+                }
+
+                @Override
+                public void onStreamError(Torrent torrent, Exception e) {
+                    Log.d(TAG, "Error: " + e.getMessage());
+                }
+
+                @Override
+                public void onStreamReady(Torrent torrent) {
+
+                }
+
+                @Override
+                public void onStreamProgress(Torrent torrent, StreamStatus status) {
+
+                }
+
+            });
+
+            torrentStream.startStream(urlToTorrent);
+            Log.e("started seeding",urlToTorrent);
+
+            //mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
+            mVideoViewModel.insert(video);
+
+        }
     }
 
 }

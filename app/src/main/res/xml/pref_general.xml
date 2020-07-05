@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
 
     <!--<SwitchPreference-->
@@ -61,10 +62,18 @@
         android:defaultValue="false" />
 
     <SwitchPreference
-        android:key="pref_torrent_player"
-        android:title="@string/pref_title_torrent_player"
-        android:summary="@string/pref_description_torrent_player"
-        android:defaultValue="false" />
+    android:key="pref_torrent_player"
+    android:title="@string/pref_title_torrent_player"
+    android:summary="@string/pref_description_torrent_player"
+    android:defaultValue="false" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="pref_torrent_seed_libre"
+        android:summary="@string/pref_description_torrent_seed_libre"
+        android:title="@string/pref_title_torrent_seed_libre"
+        app:enabled="false"
+        app:isPreferenceVisible="false" />
 
     <Preference
         android:title="@string/pref_title_version"

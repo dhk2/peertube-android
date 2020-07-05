@@ -21,10 +21,14 @@ import android.Manifest;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 
@@ -33,6 +37,7 @@ import com.github.se_bastiaan.torrentstream.TorrentOptions;
 
 import net.schueller.peertube.R;
 import net.schueller.peertube.helper.APIUrlHelper;
+import net.schueller.peertube.model.File;
 import net.schueller.peertube.model.Video;
 
 import androidx.core.app.ActivityCompat;
@@ -56,6 +61,29 @@ public class Intents {
         intent.putExtra(Intent.EXTRA_TEXT, APIUrlHelper.getShareUrl(context, video.getUuid()) );
         intent.setType("text/plain");
 
+        context.startActivity(intent);
+
+    }
+
+    public static void SeedWithLibre(Context context, Video video) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        Intent intent = new Intent();
+        Integer videoQuality = sharedPref.getInt("pref_quality", 0);
+        String urlToTorrent = video.getFiles().get(0).getTorrentUrl();
+        for (File file :video.getFiles()) {
+            // Set quality if it matches
+            Log.e("seeding with libre ",file.getTorrentDownloadUrl());
+            if (file.getResolution().getId().equals(videoQuality)) {
+                urlToTorrent = file.getTorrentUrl();
+            }
+        }
+
+
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.putExtra(Intent.EXTRA_SUBJECT, video.getName());
+        intent.putExtra(Intent.EXTRA_TEXT, APIUrlHelper.getShareUrl(context, video.getUuid()) );
+        intent.setData(Uri.parse(urlToTorrent));
+        intent.setPackage("org.proninyaroslav.libretorrent");
         context.startActivity(intent);
 
     }

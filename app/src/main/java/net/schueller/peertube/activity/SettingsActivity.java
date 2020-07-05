@@ -17,13 +17,18 @@
  */
 package net.schueller.peertube.activity;
 
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreference;
 
 import net.schueller.peertube.R;
+
+import java.util.List;
 
 public class SettingsActivity extends CommonActivity {
 
@@ -47,6 +52,7 @@ public class SettingsActivity extends CommonActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_baseline_close_24);
         }
+
     }
 
     @Override
@@ -59,6 +65,17 @@ public class SettingsActivity extends CommonActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
+            SwitchPreference useLibre = (SwitchPreference) findPreference("pref_torrent_seed_libre");
+
+            PackageManager pm = getContext().getPackageManager();
+            List<ApplicationInfo> appList = pm.getInstalledApplications(0);
+
+            for (int i = 0; i < appList.size(); i++) {
+                if (appList.get(i).packageName.equals("org.proninyaroslav.libretorrent")) {
+                    System.out.println(appList.get(i).packageName);
+                    useLibre.setEnabled(true);
+                }
+            }
         }
     }
 }
