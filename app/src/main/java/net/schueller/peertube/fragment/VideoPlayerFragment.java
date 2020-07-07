@@ -218,6 +218,7 @@ public class VideoPlayerFragment extends Fragment implements VideoRendererEventL
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
+
         if (sharedPref.getBoolean("pref_torrent_player", false)) {
             torrentStatus.setVisibility(View.VISIBLE);
             String stream = video.getFiles().get(0).getTorrentUrl();

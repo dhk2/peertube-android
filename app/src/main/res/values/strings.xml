@@ -48,7 +48,13 @@
     <string name="pref_title_app_theme">App Theme</string>
     <string name="pref_description_app_theme">Restart app for theme to take effect.</string>
     <string name="pref_title_torrent_player">Torrent Video Player</string>
-    <string name="pref_title_torrent_seed_libre">LibreTorrent Seeding</string>
+    <string name="pref_title_torrent_seed_libre_auto">Automatic LibreTorrent</string>
+    <string name="pref_title_torrent_seed_libre_interactive">Interactive LibreTorrent</string>
+    <string name="pref_title_torrent_seed_all_viewed">Autoseed viewed videos</string>
+    <string name="pref_description_torrent_seed_libre_auto">use LibreTorrent automatically</string>
+    <string name="pref_description_torrent_seed_libre_interactive">use LibreTorrent add torrent dialog</string>
+    <string name="pref_description_torrent_seed_all_viewed">Automatically seed every viewed video</string>
+    <string name="pref_title_torrent_seed_all_subscribed">Seed subscriptions</string>
     <string name="pref_description_torrent_player">Video playback via a torrent stream. This requires Storage Permissions. (Alpha, not stable!)</string>
     <string name="pref_description_torrent_seed_libre">use libretorrent to seed videos</string>
     <string name="pref_title_license">License</string>

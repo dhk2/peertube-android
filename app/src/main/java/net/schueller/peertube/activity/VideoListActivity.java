@@ -35,7 +35,11 @@ import androidx.annotation.NonNull;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Bundle;
@@ -59,17 +63,22 @@ import com.mikepenz.iconics.IconicsDrawable;
 
 import net.schueller.peertube.R;
 import net.schueller.peertube.adapter.VideoAdapter;
+import net.schueller.peertube.database.VideoViewModel;
 import net.schueller.peertube.helper.APIUrlHelper;
+import net.schueller.peertube.model.File;
+import net.schueller.peertube.model.Video;
 import net.schueller.peertube.model.VideoList;
 import net.schueller.peertube.network.GetUserService;
 import net.schueller.peertube.network.GetVideoDataService;
 import net.schueller.peertube.network.RetrofitInstance;
 import net.schueller.peertube.network.Session;
 import net.schueller.peertube.provider.SearchSuggestionsProvider;
+import net.schueller.peertube.service.SeedService;
 import net.schueller.peertube.service.VideoPlayerService;
 
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import retrofit2.Call;
@@ -105,6 +114,8 @@ public class VideoListActivity extends CommonActivity {
 
         super.onCreate(savedInstanceState);
 
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        Integer videoQuality = sharedPref.getInt("pref_quality", 0);
         setContentView(R.layout.activity_video_list);
 
         filter = null;
@@ -119,6 +130,33 @@ public class VideoListActivity extends CommonActivity {
         // load Video List
         createList();
 
+
+        //Start seeding videos if internal sharing is enabled
+        if (sharedPref.getBoolean("pref_torrent_seed_libre_interactive",false) || (sharedPref.getBoolean("pref_torrent_seed_libre_auto",false))) {
+            Log.v(TAG, "Letting someone else manage the seeding");
+        } else {
+            VideoViewModel mVideoViewModel;
+            mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
+            mVideoViewModel.getAllVideos().observe((LifecycleOwner) this, new Observer<List<Video>>() {
+                @Override
+                public void onChanged(@Nullable final List<Video> videos) {
+                    for (Video seed : videos) {
+                        Log.e("checking history:", seed.getName());
+                        String urlToTorrent = seed.getFiles().get(0).getTorrentUrl();
+                        for (File file : seed.getFiles()) {
+                            // Set quality if it matches
+                            if (file.getResolution().getId().equals(videoQuality)) {
+                                urlToTorrent = file.getTorrentUrl();
+                            }
+                        }
+                        SeedService.startActionSeedTorrent(getApplicationContext(), urlToTorrent, seed.getUuid());
+                    }
+                    ;
+
+                    Log.e("loaded db ", String.valueOf(videos.size()));
+                }
+            });
+        }
     }
 
     @Override

@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="net.schueller.peertube">
+
     <!-- required to play video in background via notification -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- connect to peertube server -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- required for torrent downloading -->
@@ -16,7 +17,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
+        <service
+            android:name=".service.SeedService"
+            android:exported="false"></service>
         <!-- Server Address Book -->
         <activity
             android:name=".activity.ServerAddressBookActivity"

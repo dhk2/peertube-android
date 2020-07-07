@@ -62,6 +62,7 @@ import net.schueller.peertube.model.Video;
 import net.schueller.peertube.network.GetVideoDataService;
 import net.schueller.peertube.network.RetrofitInstance;
 import net.schueller.peertube.network.Session;
+import net.schueller.peertube.service.SeedService;
 import net.schueller.peertube.service.VideoPlayerService;
 
 
@@ -87,20 +88,10 @@ public class VideoMetaDataFragment extends Fragment {
 
     private Rating videoRating;
     private ColorStateList defaultTextColor;
-    VideoViewModel mVideoViewModel;
-    ArrayList<Video> history;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        history = new ArrayList<Video>();
-        mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
-        VideoAdapter historyAdapter = new VideoAdapter(history,getContext());
-        Log.e("history 1:",Integer.toString(historyAdapter.getItemCount()));
-        Log.e("history 2:",Integer.toString(history.size()));
-        for (Video his : history){
-            Log.e("checking history:",his.getName());
-        };
-
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_video_meta, container, false);
@@ -379,13 +370,12 @@ public class VideoMetaDataFragment extends Fragment {
 
     }
     public void Seed(Context context, Video video) {
-        mVideoViewModel.insert(video);
+
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        if (sharedPref.getBoolean("pref_torrent_seed_libre",false)){
+        if (sharedPref.getBoolean("pref_torrent_seed_libre_interactive",false) ||(sharedPref.getBoolean("pref_torrent_seed_libre_auto",false))){
             Intents.SeedWithLibre(context,video);
         } else {
 
-            Intent intent = new Intent();
             Integer videoQuality = sharedPref.getInt("pref_quality", 0);
             String urlToTorrent = video.getFiles().get(0).getTorrentUrl();
             for (File file : video.getFiles()) {
@@ -394,54 +384,13 @@ public class VideoMetaDataFragment extends Fragment {
                     urlToTorrent = file.getTorrentUrl();
                 }
             }
+            Log.e("vmdf seeding ",urlToTorrent);
+            SeedService.startActionSeedTorrent(getContext(),urlToTorrent,video.getUuid());
 
-            TorrentStream torrentStream;
-            TorrentOptions torrentOptions = new TorrentOptions.Builder()
-                    .saveLocation(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
-                    .removeFilesAfterStop(false)
-                    .build();
-
-            torrentStream = TorrentStream.init(torrentOptions);
-
-            torrentStream.addListener(new TorrentListener() {
-
-
-                @Override
-                public void onStreamStopped() {
-                    Log.d(TAG, "Stopped");
-                }
-
-                @Override
-                public void onStreamPrepared(Torrent torrent) {
-                    Log.d(TAG, "Prepared");
-                }
-
-                @Override
-                public void onStreamStarted(Torrent torrent) {
-                    Log.d(TAG, "Started");
-                }
-
-                @Override
-                public void onStreamError(Torrent torrent, Exception e) {
-                    Log.d(TAG, "Error: " + e.getMessage());
-                }
-
-                @Override
-                public void onStreamReady(Torrent torrent) {
-
-                }
-
-                @Override
-                public void onStreamProgress(Torrent torrent, StreamStatus status) {
-
-                }
-
-            });
-
-            torrentStream.startStream(urlToTorrent);
-            Log.e("started seeding",urlToTorrent);
-
-            //mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
+            //add video to list of seeded videos
+            VideoViewModel mVideoViewModel;
+            mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
+            mVideoViewModel.insert(video);
             mVideoViewModel.insert(video);
 
         }

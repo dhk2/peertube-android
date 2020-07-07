@@ -69,9 +69,17 @@
 
     <SwitchPreference
         android:defaultValue="false"
-        android:key="pref_torrent_seed_libre"
-        android:summary="@string/pref_description_torrent_seed_libre"
-        android:title="@string/pref_title_torrent_seed_libre"
+        android:key="pref_torrent_seed_libre_"
+        android:summary="@string/pref_description_torrent_seed_libre_auto"
+        android:title="@string/pref_title_torrent_seed_libre_auto"
+        app:enabled="false"
+        app:isPreferenceVisible="false" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="pref_description_torrent_seed_all_viewed"
+        android:summary="@string/pref_description_torrent_seed_all_viewed"
+        android:title="@string/pref_title_torrent_seed_all_viewed"
         app:enabled="false"
         app:isPreferenceVisible="false" />
 

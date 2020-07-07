@@ -65,15 +65,16 @@ public class SettingsActivity extends CommonActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
-            SwitchPreference useLibre = (SwitchPreference) findPreference("pref_torrent_seed_libre");
-
+            SwitchPreference useLibreAuto = (SwitchPreference) findPreference("pref_torrent_seed_libre_auto");
+            SwitchPreference useLibreInteractive = (SwitchPreference) findPreference("pref_torrent_seed_libre_interactive");
             PackageManager pm = getContext().getPackageManager();
             List<ApplicationInfo> appList = pm.getInstalledApplications(0);
 
             for (int i = 0; i < appList.size(); i++) {
                 if (appList.get(i).packageName.equals("org.proninyaroslav.libretorrent")) {
                     System.out.println(appList.get(i).packageName);
-                    useLibre.setEnabled(true);
+                    useLibreAuto.setEnabled(true);
+                    useLibreInteractive.setEnabled(true);
                 }
             }
         }
