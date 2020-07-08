@@ -117,7 +117,7 @@ public class VideoListActivity extends CommonActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         Integer videoQuality = sharedPref.getInt("pref_quality", 0);
         setContentView(R.layout.activity_video_list);
-
+        VideoViewModel mVideoViewModel;
         filter = null;
 
         createBottomBarNavigation();
@@ -135,7 +135,7 @@ public class VideoListActivity extends CommonActivity {
         if (sharedPref.getBoolean("pref_torrent_seed_libre_interactive",false) || (sharedPref.getBoolean("pref_torrent_seed_libre_auto",false))) {
             Log.v(TAG, "Letting someone else manage the seeding");
         } else {
-            VideoViewModel mVideoViewModel;
+
             mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
             mVideoViewModel.getAllVideos().observe((LifecycleOwner) this, new Observer<List<Video>>() {
                 @Override
@@ -149,7 +149,7 @@ public class VideoListActivity extends CommonActivity {
                                 urlToTorrent = file.getTorrentUrl();
                             }
                         }
-                        SeedService.startActionSeedTorrent(getApplicationContext(), urlToTorrent, seed.getUuid());
+                        //SeedService.startActionSeedTorrent(getApplicationContext(), urlToTorrent, seed.getUuid());
                     }
                     ;
 
@@ -318,8 +318,8 @@ public class VideoListActivity extends CommonActivity {
 
         videoAdapter = new VideoAdapter(new ArrayList<>(), VideoListActivity.this);
         recyclerView.setAdapter(videoAdapter);
-
-        loadVideos(currentStart, count, sort, filter);
+        loadHistory(0,15,"");
+        //loadVideos(currentStart, count, sort, filter);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -415,6 +415,60 @@ public class VideoListActivity extends CommonActivity {
     }
 
 
+
+
+
+
+
+    private void loadHistory(int start, int count, String sort) {
+
+        isLoading = true;
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        VideoViewModel mVideoViewModel;
+        mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
+        mVideoViewModel.getAllVideos().observe((LifecycleOwner) this, new Observer<List<Video>>() {
+
+            @Override
+            public void onChanged(List<Video> videos) {
+                videoAdapter.setData((ArrayList<Video>) videos);
+                if (currentStart == 0) {
+                    videoAdapter.clearData();
+                }
+
+                if (videos.size() >0) {
+                    videoAdapter.setData((ArrayList)videos);
+                }
+
+                // no results show no results message
+                if (currentStart == 0 && videoAdapter.getItemCount() == 0) {
+                    emptyView.setVisibility(View.VISIBLE);
+                    recyclerView.setVisibility(View.GONE);
+
+                } else {
+                    emptyView.setVisibility(View.GONE);
+                    recyclerView.setVisibility(View.VISIBLE);
+                }
+
+                isLoading = false;
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -508,13 +562,25 @@ public class VideoListActivity extends CommonActivity {
                     }
 
                     return true;
-                case R.id.navigation_recent:
+                /*
+                    case R.id.navigation_recent:
                     if (!isLoading) {
                         sort = "-createdAt";
                         currentStart = 0;
                         filter = null;
                         subscriptions = false;
                         loadVideos(currentStart, count, sort, filter);
+                    }
+
+                    return true;
+                   */
+                case R.id.navigation_recent:
+                    if (!isLoading) {
+                        sort = "-createdAt";
+                        currentStart = 0;
+                        filter = null;
+                        subscriptions = false;
+                        loadHistory(currentStart, count, sort);
                     }
 
                     return true;

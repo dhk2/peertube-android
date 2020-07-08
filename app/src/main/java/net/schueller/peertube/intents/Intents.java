@@ -28,7 +28,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 

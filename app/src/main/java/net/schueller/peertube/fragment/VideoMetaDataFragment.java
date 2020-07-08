@@ -20,13 +20,11 @@ package net.schueller.peertube.fragment;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
@@ -38,18 +36,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.se_bastiaan.torrentstream.StreamStatus;
-import com.github.se_bastiaan.torrentstream.Torrent;
-import com.github.se_bastiaan.torrentstream.TorrentOptions;
-import com.github.se_bastiaan.torrentstream.TorrentStream;
-import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
 import com.mikepenz.iconics.Iconics;
 import com.squareup.picasso.Picasso;
 
 import net.schueller.peertube.R;
-import net.schueller.peertube.adapter.ServerListAdapter;
-import net.schueller.peertube.adapter.VideoAdapter;
-import net.schueller.peertube.database.VideoDao;
 import net.schueller.peertube.database.VideoViewModel;
 import net.schueller.peertube.helper.APIUrlHelper;
 import net.schueller.peertube.helper.MetaDataHelper;
@@ -70,12 +60,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -391,9 +376,6 @@ public class VideoMetaDataFragment extends Fragment {
             VideoViewModel mVideoViewModel;
             mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
             mVideoViewModel.insert(video);
-            mVideoViewModel.insert(video);
-
         }
     }
-
 }

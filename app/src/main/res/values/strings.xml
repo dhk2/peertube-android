@@ -51,12 +51,16 @@
     <string name="pref_title_torrent_seed_libre_auto">Automatic LibreTorrent</string>
     <string name="pref_title_torrent_seed_libre_interactive">Interactive LibreTorrent</string>
     <string name="pref_title_torrent_seed_all_viewed">Autoseed viewed videos</string>
-    <string name="pref_description_torrent_seed_libre_auto">use LibreTorrent automatically</string>
-    <string name="pref_description_torrent_seed_libre_interactive">use LibreTorrent add torrent dialog</string>
+    <string name="pref_title_torrent_seed_wifi_only">WIFI only</string>
+    <string name="pref_title_torrent_background_seed">Seed videos</string>
+    <string name="pref_description_torrent_background_seed">Seed videos when Thorium isn\'t running</string>
+    <string name="pref_description_torrent_seed_wifi_only">Do not seed videos when using cellular data</string>
+    <string name="pref_description_torrent_seed_libre_auto">use LibreTorrent automatically, requires enabling torrent Watch Directory in LibreTorrent Storage Settings.</string>
+    <string name="pref_description_torrent_seed_libre_interactive">uses LibreTorrent add dialog when choosing to seed video</string>
     <string name="pref_description_torrent_seed_all_viewed">Automatically seed every viewed video</string>
     <string name="pref_title_torrent_seed_all_subscribed">Seed subscriptions</string>
     <string name="pref_description_torrent_player">Video playback via a torrent stream. This requires Storage Permissions. (Alpha, not stable!)</string>
-    <string name="pref_description_torrent_seed_libre">use libretorrent to seed videos</string>
+    <string name="pref_description_torrent_seed_libre">use LibreTorrent to seed videos</string>
     <string name="pref_title_license">License</string>
     <string name="pref_description_license">\n<b>GNU Affero General Public License v3.0</b>\n\nPermissions of this strongest copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights. When a modified version is used to provide a service over a network, the complete source code of the modified version must be made available.</string>
     <string name="pref_title_version">Version</string>
@@ -380,6 +384,8 @@
     <string name="settings_activity_video_playback_category_title">Video Playback</string>
     <string name="settings_activity_about_category_title">About</string>
     <string name="settings_activity_look_and_feel_category_title"><![CDATA[Look & Feel]]></string>
+    <string name="settings_activity_seed_category_title">Seed settings</string>
+
 
     <string name="peertube_instance_search_default_description" translatable="false">PeerTube, a federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly in the web browser with WebTorrent and Angular.</string>
     <string name="server_selection_nsfw_instance">NSFW Instance</string>

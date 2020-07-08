@@ -74,6 +74,28 @@
             app:title="@string/pref_title_torrent_player"
             app:iconSpaceReserved="false"/>
 
+
+    </PreferenceCategory>
+    <PreferenceCategory app:title="@string/settings_activity_seed_category_title" app:iconSpaceReserved="false">
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:key="pref_torrent_background_seed"
+            app:summary="@string/pref_description_torrent_background_seed"
+            app:title="@string/pref_title_torrent_background_seed"
+            app:iconSpaceReserved="false"/>
+        <SwitchPreference
+            app:defaultValue="false"
+            app:key="pref_torrent_seed_wifi_only"
+            app:summary="@string/pref_description_torrent_seed_wifi_only"
+            app:title="@string/pref_title_torrent_seed_wifi_only"
+            app:iconSpaceReserved="false"/>
+        <SwitchPreference
+            app:defaultValue="false"
+            app:key="pref_torrent_seed_all_viewed"
+            app:summary="@string/pref_description_torrent_seed_all_viewed"
+            app:title="@string/pref_title_torrent_seed_all_viewed"
+            app:iconSpaceReserved="false"/>
         <SwitchPreference
             app:defaultValue="false"
             app:key="pref_torrent_seed_libre_auto"
@@ -89,13 +111,8 @@
             app:iconSpaceReserved="false"
             app:enabled="false"/>
 
-        <SwitchPreference
-            app:defaultValue="false"
-            app:key="pref_torrent_seed_all_viewed"
-            app:summary="@string/pref_description_torrent_seed_all_viewed"
-            app:title="@string/pref_title_torrent_seed_all_subscribed"
-            app:iconSpaceReserved="false"
-            app:enabled="false"/>
+
+
 
 
     </PreferenceCategory>

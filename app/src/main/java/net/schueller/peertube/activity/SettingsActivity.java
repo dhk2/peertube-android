@@ -24,7 +24,6 @@ import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreference;
 
 import net.schueller.peertube.R;
 
@@ -65,16 +64,15 @@ public class SettingsActivity extends CommonActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
-            SwitchPreference useLibreAuto = (SwitchPreference) findPreference("pref_torrent_seed_libre_auto");
-            SwitchPreference useLibreInteractive = (SwitchPreference) findPreference("pref_torrent_seed_libre_interactive");
+            //enable libre torrent seeding options if it is installed
             PackageManager pm = getContext().getPackageManager();
             List<ApplicationInfo> appList = pm.getInstalledApplications(0);
 
             for (int i = 0; i < appList.size(); i++) {
                 if (appList.get(i).packageName.equals("org.proninyaroslav.libretorrent")) {
                     System.out.println(appList.get(i).packageName);
-                    useLibreAuto.setEnabled(true);
-                    useLibreInteractive.setEnabled(true);
+                    findPreference("pref_torrent_seed_libre_auto").setEnabled(true);
+                    findPreference("pref_torrent_seed_libre_interactive").setEnabled(true);
                 }
             }
         }
