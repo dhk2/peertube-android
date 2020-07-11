@@ -4,9 +4,15 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,23 +36,11 @@ import net.schueller.peertube.model.Video;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p>
- * TODO: Customize class - update intent actions, extra parameters and static
- * helper methods.
- */
 public class SeedService extends IntentService {
-    //VideoViewModel mVideoViewModel;
-    //List<Video> history;
-    //ViewModelStore videoViewModelStore;
-    // TODO: Rename actions, choose action names that describe tasks that this
-    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     private static final String ACTION_SEED_TORRENT = "net.schueller.peertube.service.action.seed";
     private static final String ACTION_DELETE_TORRENT = "net.schueller.peertube.service.action.delete";
 
-    // TODO: Rename parameters
+
     private static final String EXTRA_TORRENTURL = "net.schueller.peertube.service.extra.TORRENTURL";
     private static final String EXTRA_VIDEO_UUID = "net.schueller.peertube.service.extra.VIDEO_UUID";
 
@@ -56,13 +50,7 @@ public class SeedService extends IntentService {
         super("SeedService");
     }
 
-    /**
-     * Starts this service to perform action Foo with the given parameters. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
-     */
-    // TODO: Customize helper method
+
     public static void startActionSeedTorrent(Context context, String torrentUrl, String videoUuid) {
         Intent intent = new Intent(context, SeedService.class);
         intent.setAction(ACTION_SEED_TORRENT);
@@ -72,13 +60,8 @@ public class SeedService extends IntentService {
 
     }
 
-    /**
-     * Starts this service to perform action Baz with the given parameters. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
-     */
-    // TODO: Customize helper method
+
+
     public static void startActionDeleteTorrent(Context context, String torrentUrl, String videoUuid) {
         Intent intent = new Intent(context, SeedService.class);
         intent.setAction(ACTION_DELETE_TORRENT);
@@ -91,74 +74,86 @@ public class SeedService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
+            final String torrentUrl = intent.getStringExtra(EXTRA_TORRENTURL);
+            final String videoUuid = intent.getStringExtra(EXTRA_VIDEO_UUID);
             if (ACTION_SEED_TORRENT.equals(action)) {
-                final String torrentUrl = intent.getStringExtra(EXTRA_TORRENTURL);
-                final String videoUuid = intent.getStringExtra(EXTRA_VIDEO_UUID);
                 handleActionSeedTorrent(torrentUrl, videoUuid);
             } else if (ACTION_DELETE_TORRENT.equals(action)) {
-                final String torrentUrl = intent.getStringExtra(EXTRA_TORRENTURL);
-                final String videoUuid = intent.getStringExtra(EXTRA_VIDEO_UUID);
                 handleActionDeleteTorrent(torrentUrl, videoUuid);
             }
         }
     }
 
-    /**
-     * Handle action Foo in the provided background thread with the provided
-     * parameters.
-     */
     private void handleActionDeleteTorrent(String torrentUrl, String videoUuid) {
         // TODO: Handle action Foo
         throw new UnsupportedOperationException("Not yet implemented delete torrent "+videoUuid);
     }
-
-    /**
-     * Handle action Baz in the provided background thread with the provided
-     * parameters.
-     */
     private void handleActionSeedTorrent(String torrentUrl, String VideoUuid) {
-
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            Intent intent = new Intent();
+            if (!sharedPref.getBoolean("pref_torrent_background_seed",false)){
+                Log.e(TAG,"We should not be seeding because seeding not enabled");
+                return;
+            }
+
+            if (sharedPref.getBoolean("pref_torrent_seed_wifi_only",false) && !(wifiConnection())){
+                Log.e(TAG,"not connected to wifi which is required to seed");
+                return;
+            }
             TorrentStream torrentStream;
             TorrentOptions torrentOptions = new TorrentOptions.Builder()
                     .saveLocation(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
                     .removeFilesAfterStop(false)
                     .build();
             torrentStream = TorrentStream.init(torrentOptions);
-
                 torrentStream.addListener(new TorrentListener() {
 
 
                     @Override
                     public void onStreamStopped() {
-                        Log.d(TAG, "Stopped");
+                        Log.e(TAG, "Stopped");
                     }
 
                     @Override
                     public void onStreamPrepared(Torrent torrent) {
-                        Log.d(TAG, "Prepared");
+                        Log.e(TAG, "Prepared "+torrentUrl);
                     }
 
                     @Override
                     public void onStreamStarted(Torrent torrent) {
-                        Log.d(TAG, "Started");
+                        Log.e(TAG, "Started"+torrentUrl);
                     }
 
                     @Override
                     public void onStreamError(Torrent torrent, Exception e) {
-                        Log.d(TAG, "Error: " + e.getMessage());
+                        Log.e(TAG, "Error: " + e.getMessage());
                     }
 
                     @Override
                     public void onStreamReady(Torrent torrent) {
+                        Log.e(TAG, "stream ready " + torrentUrl);
                     }
 
                     @Override
                     public void onStreamProgress(Torrent torrent, StreamStatus status) {
+                        Log.e(TAG, "streamprogress " + torrentUrl);
                     }
                 });
-                //torrentStream.startStream(torrentUrl);
+
+
+                torrentStream.startStream(torrentUrl);
                 Log.e("started seeding",torrentUrl);
+   }
+   private Boolean wifiConnection(){
+       ConnectivityManager connMgr =
+               (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+       for (Network network : connMgr.getAllNetworks()) {
+           NetworkInfo networkInfo = connMgr.getNetworkInfo(network);
+           if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+               Log.d(TAG, "wifi connected: " );
+               return true;
+           }
+       }
+       Log.d(TAG, "wifi not connected: " );
+       return false;
    }
 }

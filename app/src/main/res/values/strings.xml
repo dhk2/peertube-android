@@ -20,6 +20,7 @@
     <string name="action_bar_title_settings">Settings</string>
     <string name="action_bar_title_logout">Log out</string>
     <string name="action_bar_title_account">Account</string>
+    <string name="action_bar_title_seeds">Seeds</string>
     <!-- Bottom navigation bar -->
     <string name="bottom_nav_title_discover">Discover</string>
     <string name="bottom_nav_title_trending">Trending</string>
@@ -379,6 +380,7 @@
     <string name="title_activity_select_server">Select Server</string>
     <string name="title_activity_me">Account</string>
     <string name="title_activity_settings2">SettingsActivity2</string>
+    <string name="title_activity_seeds">Seeds</string>
 
     <string name="settings_activity_video_list_category_title">Video List</string>
     <string name="settings_activity_video_playback_category_title">Video Playback</string>

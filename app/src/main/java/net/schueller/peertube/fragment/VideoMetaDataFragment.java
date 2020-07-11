@@ -24,6 +24,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -360,7 +363,10 @@ public class VideoMetaDataFragment extends Fragment {
         if (sharedPref.getBoolean("pref_torrent_seed_libre_interactive",false) ||(sharedPref.getBoolean("pref_torrent_seed_libre_auto",false))){
             Intents.SeedWithLibre(context,video);
         } else {
-
+            if (!sharedPref.getBoolean("pref_torrent_background_seed",false)){
+                Toast.makeText(context, "Seeding disabled in settings", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Integer videoQuality = sharedPref.getInt("pref_quality", 0);
             String urlToTorrent = video.getFiles().get(0).getTorrentUrl();
             for (File file : video.getFiles()) {

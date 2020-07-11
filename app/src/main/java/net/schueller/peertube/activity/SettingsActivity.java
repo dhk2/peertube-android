@@ -17,12 +17,16 @@
  */
 package net.schueller.peertube.activity;
 
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import net.schueller.peertube.R;
@@ -59,11 +63,30 @@ public class SettingsActivity extends CommonActivity {
         finish(); // close this activity as oppose to navigating up
         return false;
     }
-
     public static class SettingsFragment extends PreferenceFragmentCompat {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+            if (sharedPref.getBoolean("pref_torrent_background_seed",false)){
+                findPreference("pref_torrent_settings").setVisible(true);
+            } else {
+                findPreference("pref_torrent_settings").setVisible(false);
+            }
+            findPreference("pref_torrent_background_seed").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Boolean enabled=(Boolean)newValue;
+                    if (enabled){
+                        findPreference("pref_torrent_settings").setVisible(true);
+                    } else {
+                        findPreference("pref_torrent_settings").setVisible(false);
+                    }
+                    return (boolean) preference.isEnabled();
+                }
+            });
+
+
             //enable libre torrent seeding options if it is installed
             PackageManager pm = getContext().getPackageManager();
             List<ApplicationInfo> appList = pm.getInstalledApplications(0);
@@ -71,10 +94,12 @@ public class SettingsActivity extends CommonActivity {
             for (int i = 0; i < appList.size(); i++) {
                 if (appList.get(i).packageName.equals("org.proninyaroslav.libretorrent")) {
                     System.out.println(appList.get(i).packageName);
-                    findPreference("pref_torrent_seed_libre_auto").setEnabled(true);
-                    findPreference("pref_torrent_seed_libre_interactive").setEnabled(true);
+                    findPreference("pref_torrent_seed_libre_auto").setVisible(true);
+                    findPreference("pref_torrent_seed_libre_interactive").setVisible(true);
                 }
             }
+
+
         }
     }
 }

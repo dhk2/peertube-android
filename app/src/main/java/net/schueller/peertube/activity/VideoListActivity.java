@@ -35,7 +35,6 @@ import androidx.annotation.NonNull;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
@@ -103,6 +102,7 @@ public class VideoListActivity extends CommonActivity {
     private String searchQuery = "";
     private Boolean subscriptions = false;
 
+    private ArrayList <Video> seeds = new ArrayList<>();
     private TextView emptyView;
     private RecyclerView recyclerView;
 
@@ -114,10 +114,9 @@ public class VideoListActivity extends CommonActivity {
 
         super.onCreate(savedInstanceState);
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        Integer videoQuality = sharedPref.getInt("pref_quality", 0);
+
         setContentView(R.layout.activity_video_list);
-        VideoViewModel mVideoViewModel;
+
         filter = null;
 
         createBottomBarNavigation();
@@ -126,37 +125,15 @@ public class VideoListActivity extends CommonActivity {
         Toolbar toolbar = findViewById(R.id.tool_bar);
         // Setting toolbar as the ActionBar with setSupportActionBar() call
         setSupportActionBar(toolbar);
+        Log.v(TAG,"oncreate with action "+getIntent().getAction());
+        // load seeds list
+        loadSeeds();
 
-        // load Video List
         createList();
+        // load Video List
+        loadSeeds();
+        // load Video List
 
-
-        //Start seeding videos if internal sharing is enabled
-        if (sharedPref.getBoolean("pref_torrent_seed_libre_interactive",false) || (sharedPref.getBoolean("pref_torrent_seed_libre_auto",false))) {
-            Log.v(TAG, "Letting someone else manage the seeding");
-        } else {
-
-            mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
-            mVideoViewModel.getAllVideos().observe((LifecycleOwner) this, new Observer<List<Video>>() {
-                @Override
-                public void onChanged(@Nullable final List<Video> videos) {
-                    for (Video seed : videos) {
-                        Log.e("checking history:", seed.getName());
-                        String urlToTorrent = seed.getFiles().get(0).getTorrentUrl();
-                        for (File file : seed.getFiles()) {
-                            // Set quality if it matches
-                            if (file.getResolution().getId().equals(videoQuality)) {
-                                urlToTorrent = file.getTorrentUrl();
-                            }
-                        }
-                        //SeedService.startActionSeedTorrent(getApplicationContext(), urlToTorrent, seed.getUuid());
-                    }
-                    ;
-
-                    Log.e("loaded db ", String.valueOf(videos.size()));
-                }
-            });
-        }
     }
 
     @Override
@@ -274,6 +251,10 @@ public class VideoListActivity extends CommonActivity {
 
         switch (item.getItemId()) {
             // action with ID action_refresh was selected
+            case R.id.action_seeds:
+                //sort="seeds";
+                loadVideos(0,15,"seeds","");
+                return false;
             case R.id.action_search:
                 //Toast.makeText(this, "Search Selected", Toast.LENGTH_SHORT).show();
 
@@ -308,6 +289,7 @@ public class VideoListActivity extends CommonActivity {
     }
 
     private void createList() {
+        Log.e(TAG,"create video list");
         recyclerView = findViewById(R.id.recyclerView);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
@@ -318,8 +300,8 @@ public class VideoListActivity extends CommonActivity {
 
         videoAdapter = new VideoAdapter(new ArrayList<>(), VideoListActivity.this);
         recyclerView.setAdapter(videoAdapter);
-        loadHistory(0,15,"");
-        //loadVideos(currentStart, count, sort, filter);
+
+        loadVideos(currentStart, count, sort, filter);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -354,7 +336,23 @@ public class VideoListActivity extends CommonActivity {
     }
 
     private void loadVideos(int start, int count, String sort, String filter) {
+        Log.e(TAG,"load videos");
+        if (sort.equals("seeds")){
 
+            videoAdapter.clearData();
+            videoAdapter.setData(seeds);
+            // no seeds show no results message
+            if (currentStart == 0 && videoAdapter.getItemCount() == 0) {
+                emptyView.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            } else {
+                emptyView.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            }
+            isLoading = false;
+            swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
         isLoading = true;
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -414,60 +412,33 @@ public class VideoListActivity extends CommonActivity {
         });
     }
 
-
-
-
-
-
-
-    private void loadHistory(int start, int count, String sort) {
-
-        isLoading = true;
+    private void loadSeeds() {
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         VideoViewModel mVideoViewModel;
+        Integer videoQuality = sharedPref.getInt("pref_quality", 0);
         mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
         mVideoViewModel.getAllVideos().observe((LifecycleOwner) this, new Observer<List<Video>>() {
-
             @Override
             public void onChanged(List<Video> videos) {
-                videoAdapter.setData((ArrayList<Video>) videos);
-                if (currentStart == 0) {
-                    videoAdapter.clearData();
+
+                if (sharedPref.getBoolean("pref_torrent_background_seed", false)) {
+                    for (Video seed : videos) {
+                        Log.e("checking history:", seed.getName());
+                        String urlToTorrent = seed.getFiles().get(0).getTorrentUrl();
+                        for (File file : seed.getFiles()) {
+                            // Set quality if it matches
+                            if (file.getResolution().getId().equals(videoQuality)) {
+                                urlToTorrent = file.getTorrentUrl();
+                            }
+                        }
+                        SeedService.startActionSeedTorrent(getApplicationContext(), urlToTorrent, seed.getUuid());
+                    }
                 }
-
-                if (videos.size() >0) {
-                    videoAdapter.setData((ArrayList)videos);
-                }
-
-                // no results show no results message
-                if (currentStart == 0 && videoAdapter.getItemCount() == 0) {
-                    emptyView.setVisibility(View.VISIBLE);
-                    recyclerView.setVisibility(View.GONE);
-
-                } else {
-                    emptyView.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
-                }
-
-                isLoading = false;
-                swipeRefreshLayout.setRefreshing(false);
+                seeds = (ArrayList) videos;
             }
         });
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     @Override
     protected void onResume() {
@@ -482,12 +453,16 @@ public class VideoListActivity extends CommonActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
+        Log.e(TAG,"new intent with data "+intent.getDataString());
+        Log.e(TAG,"new intent with action "+intent.getAction());
         super.onNewIntent(intent);
         setIntent(intent);
         handleIntent(intent);
     }
 
     private void handleIntent(Intent intent) {
+        Log.e(TAG,"handling intent with data "+intent.getDataString());
+        Log.e(TAG,"handling intent with action "+intent.getAction());
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
 
@@ -503,6 +478,7 @@ public class VideoListActivity extends CommonActivity {
             loadVideos(0, count, sort, filter);
 
         }
+
     }
 
     @Override
@@ -562,25 +538,13 @@ public class VideoListActivity extends CommonActivity {
                     }
 
                     return true;
-                /*
-                    case R.id.navigation_recent:
-                    if (!isLoading) {
-                        sort = "-createdAt";
-                        currentStart = 0;
-                        filter = null;
-                        subscriptions = false;
-                        loadVideos(currentStart, count, sort, filter);
-                    }
-
-                    return true;
-                   */
                 case R.id.navigation_recent:
                     if (!isLoading) {
                         sort = "-createdAt";
                         currentStart = 0;
                         filter = null;
                         subscriptions = false;
-                        loadHistory(currentStart, count, sort);
+                        loadVideos(currentStart, count, sort, filter);
                     }
 
                     return true;
