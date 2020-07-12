@@ -19,12 +19,22 @@ package net.schueller.peertube.application;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import net.schueller.peertube.service.SeedService;
 
 public class AppApplication extends Application {
     private static Application instance;
 
     @Override
     public void onCreate() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sharedPref.getBoolean("pref_torrent_background_seed",false)){
+            Intent intent = new Intent(this,SeedService.class);
+            startService(intent);
+        }
         super.onCreate();
         instance = this;
     }

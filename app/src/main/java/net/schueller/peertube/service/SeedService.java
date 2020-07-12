@@ -7,20 +7,11 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStore;
-import androidx.lifecycle.ViewModelStoreOwner;
+import androidx.room.Room;
 
 import com.github.se_bastiaan.torrentstream.StreamStatus;
 import com.github.se_bastiaan.torrentstream.Torrent;
@@ -28,11 +19,15 @@ import com.github.se_bastiaan.torrentstream.TorrentOptions;
 import com.github.se_bastiaan.torrentstream.TorrentStream;
 import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
 
+import net.schueller.peertube.database.VideoDao;
+import net.schueller.peertube.database.VideoRoomDatabase;
 import net.schueller.peertube.database.VideoViewModel;
-import net.schueller.peertube.intents.Intents;
 import net.schueller.peertube.model.File;
 import net.schueller.peertube.model.Video;
 
+import org.codehaus.plexus.util.FileUtils;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +44,38 @@ public class SeedService extends IntentService {
     public SeedService() {
         super("SeedService");
     }
+    VideoRoomDatabase videoDatabase;
+    VideoDao videoDao;
+    ArrayList<Video>videos;
+    @Override
+    public void onCreate() {
+        Log.e(TAG,"oncreate called");
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        Integer videoQuality = sharedPref.getInt("pref_quality", 0);
+        //TODO change service to run on background thread instead of mainthread
+        videoDatabase = Room.databaseBuilder(getApplicationContext() , VideoRoomDatabase.class, "video_database")
+                .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
+                .build();
+        videoDao = videoDatabase.videoDao();
+        videos = (ArrayList)videoDao.getSeeds();
+        Log.e(TAG,"videos loaded:"+videos.size());
+        for (Video seed:videos){
+            Log.e(TAG,"oncreate:"+seed.getName());
+            String urlToTorrent = seed.getFiles().get(0).getTorrentUrl();
+            Log.e(TAG,"default torrent "+urlToTorrent);
+            for (File file : seed.getFiles()) {
+                // Set quality if it matches
+                if (file.getResolution().getId().equals(videoQuality)) {
+                    urlToTorrent = file.getTorrentUrl();
+                    Log.v(TAG,"proper resolution found");
+                }
+            }
+            handleActionSeedTorrent(urlToTorrent,seed.getUuid());
 
+        }
+        super.onCreate();
+    }
 
     public static void startActionSeedTorrent(Context context, String torrentUrl, String videoUuid) {
         Intent intent = new Intent(context, SeedService.class);
@@ -135,7 +161,7 @@ public class SeedService extends IntentService {
 
                     @Override
                     public void onStreamProgress(Torrent torrent, StreamStatus status) {
-                        Log.e(TAG, "streamprogress " + torrentUrl);
+                        Log.e(TAG, "streamprogress " + status.toString());
                     }
                 });
 

@@ -42,4 +42,7 @@ public interface VideoDao {
 
     @Query("SELECT * from video_table ORDER BY name DESC")
     LiveData<List<Video>> getAllVideos();
+
+    @Query("SELECT * from video_table ORDER BY name DESC")
+    List<Video> getSeeds();
 }
