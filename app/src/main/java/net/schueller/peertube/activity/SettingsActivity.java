@@ -18,8 +18,6 @@
 package net.schueller.peertube.activity;
 
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
@@ -29,8 +27,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import net.schueller.peertube.R;
-
-import java.util.List;
 
 public class SettingsActivity extends CommonActivity {
 
@@ -61,6 +57,7 @@ public class SettingsActivity extends CommonActivity {
         finish(); // close this activity as oppose to navigating up
         return false;
     }
+
     public static class SettingsFragment extends PreferenceFragmentCompat {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -99,11 +96,6 @@ public class SettingsActivity extends CommonActivity {
                     findPreference("pref_torrent_seed_bigly_interactive").setVisible(true);
                 }
             }
-
-            for (int i = 0; i < appList.size(); i++) {
-
-            }
-
 */
         }
     }

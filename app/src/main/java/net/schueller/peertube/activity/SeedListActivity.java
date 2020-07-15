@@ -19,25 +19,13 @@
 package net.schueller.peertube.activity;
 
 import android.app.AlertDialog;
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.SearchRecentSuggestions;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -45,23 +33,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.mikepenz.fontawesome_typeface_library.FontAwesome;
-import com.mikepenz.iconics.IconicsDrawable;
-
 import net.schueller.peertube.R;
 import net.schueller.peertube.adapter.VideoAdapter;
-import net.schueller.peertube.database.Server;
 import net.schueller.peertube.database.VideoViewModel;
 import net.schueller.peertube.model.Video;
-import net.schueller.peertube.model.VideoList;
-import net.schueller.peertube.provider.SearchSuggestionsProvider;
 import net.schueller.peertube.service.SeedService;
-import net.schueller.peertube.service.VideoPlayerService;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
 
 public class SeedListActivity extends CommonActivity {
 
@@ -72,50 +51,32 @@ public class SeedListActivity extends CommonActivity {
     public static final Integer SWITCH_INSTANCE = 2;
 
     private VideoAdapter seedAdapter;
-    private SwipeRefreshLayout swipeRefreshLayout;
-
-    private int currentStart = 0;
-    private int count = 12;
-    private String sort = "-createdAt";
-    private String filter = null;
-    private String searchQuery = "";
-    private Boolean subscriptions = false;
 
     private TextView emptyView;
     private RecyclerView recyclerView;
     private VideoViewModel viewModel;
     private ArrayList seeds;
-    private boolean isLoading = false;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_seed_list);
         //todo create new seed list layout with seeding information
         //todo get video thumbnails and such to work when not connected to source server
 
         createList();
-
     }
-
     private void createList() {
         recyclerView = findViewById(R.id.recyclerView);
-        //swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-//        findViewById(R.id.navigation).setVisibility(View.INVISIBLE);
-
         emptyView = findViewById(R.id.empty_view);
-
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(SeedListActivity.this);
         recyclerView.setLayoutManager(layoutManager);
 
+        //Connect to seed db via livedata
         seedAdapter = new VideoAdapter(new ArrayList<>(), SeedListActivity.this);
         recyclerView.setAdapter(seedAdapter);
-        setTitle("title");
         viewModel = ViewModelProviders.of(this).get(VideoViewModel.class);
-        //bind to Livedata
         viewModel.getAllVideos().observe(this, new Observer<List<Video>>() {
             @Override
             public void onChanged(@Nullable List<Video> changedSeeds) {
@@ -154,12 +115,8 @@ public class SeedListActivity extends CommonActivity {
                                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                                     int position = viewHolder.getAdapterPosition();
                                     Video toBeDeleted = (Video)seeds.get(position);
-                                    Log.e(TAG,"going to delete"+toBeDeleted.toString());
-//                                    Toast.makeText(ServerAddressBookActivity.this, "Deleting " +
-//                                            server.getServerName(), Toast.LENGTH_LONG).show();
-                                    // Delete the server
-                                    //viewModel.delete(toBeDeleted);
-                                    SeedService.startActionDeleteTorrent(getApplicationContext(),"whoops",toBeDeleted.getUuid());
+                                    Log.v(TAG,"going to delete "+toBeDeleted.getName());
+                                    SeedService.startActionDeleteTorrent(getApplicationContext(),"",toBeDeleted.getUuid());
                                 })
                                 .setNegativeButton(android.R.string.no, (dialog, which) -> {
                                     seedAdapter.notifyItemChanged(viewHolder.getAdapterPosition());

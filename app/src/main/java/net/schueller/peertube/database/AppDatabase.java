@@ -20,10 +20,9 @@ package net.schueller.peertube.database;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
-
 import net.schueller.peertube.model.Video;
 
-@Database(entities = {Server.class, Video.class}, version = 2)
+@Database(entities = {Server.class, Video.class}, version = 1)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract ServerDao serverDao();

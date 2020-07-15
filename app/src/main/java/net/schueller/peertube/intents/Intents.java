@@ -76,7 +76,7 @@ public class Intents {
             }
         }
         Log.v("Intents","sharing "+urlToTorrent);
-
+//TODO optimize to take advantage of supported communication channels on open source Torrent software.
         if (sharedPref.getBoolean("pref_torrent_seed_external_interactive",false)){
             Log.e("intents-external",urlToTorrent);
             intent.setAction(Intent.ACTION_VIEW);

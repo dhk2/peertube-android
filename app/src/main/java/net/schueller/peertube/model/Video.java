@@ -18,7 +18,15 @@
 package net.schueller.peertube.model;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.media.MediaDescriptionCompat;
+
+import com.squareup.picasso.Picasso;
+
+import net.schueller.peertube.R;
+import net.schueller.peertube.helper.APIUrlHelper;
 
 import java.util.ArrayList;
 import java.util.Date;
