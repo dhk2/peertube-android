@@ -64,7 +64,7 @@ public class Intents {
 
     }
 
-    public static void SeedWithLibre(Context context, Video video) {
+    public static void SeedWithExternal(Context context, Video video) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         Intent intent = new Intent();
         Integer videoQuality = sharedPref.getInt("pref_quality", 0);
@@ -75,22 +75,26 @@ public class Intents {
                 urlToTorrent = file.getTorrentUrl();
             }
         }
-        if (sharedPref.getBoolean("pref_torrent_seed_libre_auto",false)) {
+        Log.v("Intents","sharing "+urlToTorrent);
+
+        if (sharedPref.getBoolean("pref_torrent_seed_external_interactive",false)){
+            Log.e("intents-external",urlToTorrent);
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.putExtra(Intent.EXTRA_SUBJECT, video.getName());
+            intent.putExtra(Intent.EXTRA_TEXT, APIUrlHelper.getShareUrl(context, video.getUuid()));
+            intent.setData(Uri.parse(urlToTorrent));
+            //intent.setPackage("com.biglybt.android.client");
+            //intent.setPackage("org.proninyaroslav.libretorrent");
+            context.startActivity(intent);
+            return;
+        }
+        if (sharedPref.getBoolean("pref_torrent_seed_external",false)) {
             int spot = urlToTorrent.lastIndexOf("/");
             String torrentFileName=urlToTorrent.substring(spot+1);
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(urlToTorrent));
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,torrentFileName);
             DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
             manager.enqueue(request);
-
-        } else {
-            Log.e("intents-sendto libre",urlToTorrent);
-            intent.setAction(Intent.ACTION_VIEW);
-            intent.putExtra(Intent.EXTRA_SUBJECT, video.getName());
-            intent.putExtra(Intent.EXTRA_TEXT, APIUrlHelper.getShareUrl(context, video.getUuid()));
-            intent.setData(Uri.parse(urlToTorrent));
-            intent.setPackage("org.proninyaroslav.libretorrent");
-            context.startActivity(intent);
         }
     }
 

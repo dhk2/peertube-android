@@ -25,6 +25,10 @@
             android:label="@string/title_activity_server_address_book"
             android:theme="@style/AppTheme.NoActionBar" /> <!-- Video Lists -->
         <activity
+            android:name=".activity.SeedListActivity"
+            android:label="@string/title_activity_seeds"
+            android:theme="@style/AppTheme.NoActionBar" /> <!-- Seed List-->
+        <activity
             android:name=".activity.VideoListActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">

@@ -49,19 +49,19 @@
     <string name="pref_title_app_theme">App Theme</string>
     <string name="pref_description_app_theme">Restart app for theme to take effect.</string>
     <string name="pref_title_torrent_player">Torrent Video Player</string>
-    <string name="pref_title_torrent_seed_libre_auto">Automatic LibreTorrent</string>
-    <string name="pref_title_torrent_seed_libre_interactive">Interactive LibreTorrent</string>
+    <string name="pref_title_torrent_seed_external">Third party torrent management</string>
+    <string name="pref_title_torrent_seed_external_interactive">interactive seed start</string>
     <string name="pref_title_torrent_seed_all_viewed">Autoseed viewed videos</string>
     <string name="pref_title_torrent_seed_wifi_only">WIFI only</string>
-    <string name="pref_title_torrent_background_seed">Seed videos</string>
-    <string name="pref_description_torrent_background_seed">Seed videos when Thorium isn\'t running</string>
+    <string name="pref_title_torrent_seed">Seed videos</string>
+    <string name="pref_title_torrent_seeds"># active seeds,</string>
+    <string name="pref_description_torrent_seed">Seed videos when Thorium isn\'t running</string>
     <string name="pref_description_torrent_seed_wifi_only">Do not seed videos when using cellular data</string>
-    <string name="pref_description_torrent_seed_libre_auto">use LibreTorrent automatically, requires enabling torrent Watch Directory in LibreTorrent Storage Settings.</string>
-    <string name="pref_description_torrent_seed_libre_interactive">uses LibreTorrent add dialog when choosing to seed video</string>
+    <string name="pref_description_torrent_seed_external">Use third party software for torrent seeding, requires enabling torrent watch directory in torrent software.</string>
+    <string name="pref_description_torrent_seed_external_interactive">Launch third party torrent software when choosing to seed video</string>
     <string name="pref_description_torrent_seed_all_viewed">Automatically seed every viewed video</string>
-    <string name="pref_title_torrent_seed_all_subscribed">Seed subscriptions</string>
+    <string name="pref_description_torrent_seeds">How many seeds to keep active, crashes with too many</string>
     <string name="pref_description_torrent_player">Video playback via a torrent stream. This requires Storage Permissions. (Alpha, not stable!)</string>
-    <string name="pref_description_torrent_seed_libre">use LibreTorrent to seed videos</string>
     <string name="pref_title_license">License</string>
     <string name="pref_description_license">\n<b>GNU Affero General Public License v3.0</b>\n\nPermissions of this strongest copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights. When a modified version is used to provide a service over a network, the complete source code of the modified version must be made available.</string>
     <string name="pref_title_version">Version</string>
@@ -82,6 +82,7 @@
     <string name="pref_background_stop">Stop all playback</string>
     <string name="pref_background_float">Continue playing video in floating window</string>
     <string name="pref_background_behavior">Background playing Configuration</string>
+    <string name="seed_error_disabled">"Seeding disabled in settings"</string>
     <string name="settings_api_error_float">Android version does not support floating video</string>
     <string name="settings_permissions_error_float">Picture in picture permission is disabled for this app in Android Settings</string>
     <string name="pref_background_behavior_summary">How a playing video responds when going to background</string>
@@ -376,6 +377,8 @@
     <string name="video_speed_125">1.25x</string>
     <string name="server_book_del_alert_title">Remove Server</string>
     <string name="server_book_del_alert_msg">Are you sure you want to remove this server from the address book?</string>
+    <string name="seed_del_alert_title">Remove Seed</string>
+    <string name="seed_del_alert_msg">Are you sure you want to stop seeding this video?</string>
 
     <string name="title_activity_select_server">Select Server</string>
     <string name="title_activity_me">Account</string>

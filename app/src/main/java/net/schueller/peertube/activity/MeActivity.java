@@ -87,6 +87,7 @@ public class MeActivity extends CommonActivity {
         LinearLayout account = findViewById(R.id.a_me_account_line);
         LinearLayout settings = findViewById(R.id.a_me_settings);
         LinearLayout help = findViewById(R.id.a_me_helpnfeedback);
+        LinearLayout seeds = findViewById(R.id.a_me_seeds);
 
         TextView logout = findViewById(R.id.a_me_logout);
 
@@ -107,6 +108,11 @@ public class MeActivity extends CommonActivity {
         logout.setOnClickListener(view -> {
             Session.getInstance().invalidate();
             account.setVisibility(View.GONE);
+        });
+
+        seeds.setOnClickListener(view ->{
+            Intent seedActivityIntent= new Intent(getContext(), SeedListActivity.class);
+            this.startActivity(seedActivityIntent);
         });
 
         getUserData();

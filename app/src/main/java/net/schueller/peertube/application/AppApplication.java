@@ -30,10 +30,17 @@ public class AppApplication extends Application {
 
     @Override
     public void onCreate() {
+        //If configured to seed videos internally, start seed service
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPref.getBoolean("pref_torrent_background_seed",false)){
+        if (sharedPref.getBoolean("pref_torrent_seed",false) &&
+                !sharedPref.getBoolean("pref_torrent_seed_external",false)){
             Intent intent = new Intent(this,SeedService.class);
-            startService(intent);
+            //throws an error when trying to start application in background.
+            try {
+                startService(intent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         super.onCreate();
         instance = this;

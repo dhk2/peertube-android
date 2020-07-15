@@ -79,9 +79,9 @@
 
     <SwitchPreference
         app:defaultValue="false"
-        app:key="pref_torrent_background_seed"
-        app:summary="@string/pref_description_torrent_background_seed"
-        app:title="@string/pref_title_torrent_background_seed"
+        app:key="pref_torrent_seed"
+        app:summary="@string/pref_description_torrent_seed"
+        app:title="@string/pref_title_torrent_seed"
         app:iconSpaceReserved="false"/>
 
     <PreferenceCategory app:title="@string/settings_activity_seed_category_title" app:iconSpaceReserved="false" app:key="pref_torrent_settings">
@@ -94,31 +94,23 @@
             app:summary="@string/pref_description_torrent_seed_wifi_only"
             app:title="@string/pref_title_torrent_seed_wifi_only"
             app:iconSpaceReserved="false"/>
+
+
         <SwitchPreference
             app:defaultValue="false"
-            app:key="pref_torrent_seed_all_viewed"
-            app:summary="@string/pref_description_torrent_seed_all_viewed"
-            app:title="@string/pref_title_torrent_seed_all_viewed"
-            app:iconSpaceReserved="false"/>
-        <SwitchPreference
-            app:defaultValue="false"
-            app:key="pref_torrent_seed_libre_auto"
-            app:summary="@string/pref_description_torrent_seed_libre_auto"
-            app:title="@string/pref_title_torrent_seed_libre_auto"
+            app:key="pref_torrent_seed_external"
+            app:summary="@string/pref_description_torrent_seed_external"
+            app:title="@string/pref_title_torrent_seed_external"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false" />
+            app:isPreferenceVisible="true" />
 
         <SwitchPreference
             app:defaultValue="false"
-            app:key="pref_torrent_seed_libre_interactive"
-            app:summary="@string/pref_description_torrent_seed_libre_interactive"
-            app:title="@string/pref_title_torrent_seed_libre_interactive"
+            app:key="pref_torrent_seed_external_interactive"
+            app:summary="@string/pref_description_torrent_seed_external_interactive"
+            app:title="@string/pref_title_torrent_seed_external_interactive"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false" />
-
-
-
-
+            app:isPreferenceVisible="true" />
 
     </PreferenceCategory>
 

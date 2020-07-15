@@ -58,9 +58,12 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import net.schueller.peertube.R;
+import net.schueller.peertube.activity.VideoListActivity;
 import net.schueller.peertube.activity.VideoPlayActivity;
 import net.schueller.peertube.helper.MetaDataHelper;
 import net.schueller.peertube.model.Video;
+
+import org.apache.commons.lang3.ObjectUtils;
 
 import static android.media.session.PlaybackState.ACTION_PAUSE;
 import static android.media.session.PlaybackState.ACTION_PLAY;
@@ -123,6 +126,11 @@ public class VideoPlayerService extends Service {
         }
     }
 
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        Log.v(TAG,"onTaskRemoved...");
+        super.onTaskRemoved(rootIntent);
+    }
 
     @Override
     public void onDestroy() {

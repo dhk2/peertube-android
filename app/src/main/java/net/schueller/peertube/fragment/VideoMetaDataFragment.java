@@ -358,11 +358,12 @@ public class VideoMetaDataFragment extends Fragment {
     public void Seed(Context context, Video video) {
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        if (sharedPref.getBoolean("pref_torrent_seed_libre_interactive",false) ||(sharedPref.getBoolean("pref_torrent_seed_libre_auto",false))){
-            Intents.SeedWithLibre(context,video);
+        if (!sharedPref.getBoolean("pref_torrent_seed",false)){
+            Toast.makeText(context, "Seeding disabled in settings", Toast.LENGTH_SHORT).show();
         } else {
-            if (!sharedPref.getBoolean("pref_torrent_background_seed",false)){
-                Toast.makeText(context, "Seeding disabled in settings", Toast.LENGTH_SHORT).show();
+            if (sharedPref.getBoolean("pref_torrent_seed_external",false)){
+                Log.v(TAG,"Seeding with external torrent manager");
+                Intents.SeedWithExternal(context,video);
                 return;
             }
             Integer videoQuality = sharedPref.getInt("pref_quality", 0);
@@ -373,13 +374,13 @@ public class VideoMetaDataFragment extends Fragment {
                     urlToTorrent = file.getTorrentUrl();
                 }
             }
-            Log.e("vmdf seeding ",urlToTorrent);
-            SeedService.startActionSeedTorrent(getContext(),urlToTorrent,video.getUuid());
-
+            Log.v(TAG,"Passing torrent to internal seed service");
             //add video to list of seeded videos
             VideoViewModel mVideoViewModel;
             mVideoViewModel = new ViewModelProvider(this).get(VideoViewModel.class);
             mVideoViewModel.insert(video);
+            SeedService.startActionSeedTorrent(getContext(),urlToTorrent,video.getUuid());
+
         }
     }
 }

@@ -45,4 +45,10 @@ public interface VideoDao {
 
     @Query("SELECT * from video_table ORDER BY name DESC")
     List<Video> getSeeds();
+
+    @Query("Select * from video_table where uuid = :uuid")
+    Video getVideo(String uuid);
+
+    @Query("DELETE FROM video_table where uuid = :uuid")
+    void delete_byUuid(String uuid);
 }

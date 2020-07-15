@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.room.Room;
 
 import com.github.se_bastiaan.torrentstream.StreamStatus;
@@ -21,15 +22,11 @@ import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
 
 import net.schueller.peertube.database.VideoDao;
 import net.schueller.peertube.database.VideoRoomDatabase;
-import net.schueller.peertube.database.VideoViewModel;
 import net.schueller.peertube.model.File;
+import net.schueller.peertube.model.Seed;
 import net.schueller.peertube.model.Video;
 
-import org.codehaus.plexus.util.FileUtils;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class SeedService extends IntentService {
     private static final String ACTION_SEED_TORRENT = "net.schueller.peertube.service.action.seed";
@@ -44,36 +41,67 @@ public class SeedService extends IntentService {
     public SeedService() {
         super("SeedService");
     }
+
+    private static ArrayList<Seed> seeds;
     VideoRoomDatabase videoDatabase;
     VideoDao videoDao;
-    ArrayList<Video>videos;
+    ArrayList<Video> videos;
+
+    static Integer seedLimit;
     @Override
-    public void onCreate() {
-        Log.e(TAG,"oncreate called");
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        Integer videoQuality = sharedPref.getInt("pref_quality", 0);
-        //TODO change service to run on background thread instead of mainthread
+    public void onStart(@Nullable Intent intent, int startId) {
+        Log.v(TAG, "onstart called");
+        //Connect to database of seeded videos
         videoDatabase = Room.databaseBuilder(getApplicationContext() , VideoRoomDatabase.class, "video_database")
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
                 .build();
         videoDao = videoDatabase.videoDao();
         videos = (ArrayList)videoDao.getSeeds();
-        Log.e(TAG,"videos loaded:"+videos.size());
+
+        //if seeds list already exists the no need to reseed database.
+        if (seeds != null) {
+            Log.v(TAG, "existing torrents already:"+String.valueOf(seeds.size()));
+            super.onStart(intent, startId);
+            return;
+        } else {
+            Log.v(TAG,"creating empty list of torrents.");
+            seeds = new ArrayList<Seed>();
+        }
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        //hardcoded to 1 seed for now
+        seedLimit=1;
+        //seedLimit = sharedPref.getInt("pref_torrent_seeds",1);
+        Integer videoQuality = sharedPref.getInt("pref_quality", 0);
+
+        //TODO implement better truncation algorythm for downsizing seed limit
+        if (videos.size()>seedLimit){
+            Video only = videos.get(videos.size()-1);
+            videos.clear();
+            videos.add(only);
+            videoDao.deleteAll();
+            videoDao.insert(only);
+        }
+        Log.v(TAG,"videos loaded:"+videos.size());
+
+        //start seeding seeds on initial start of service
         for (Video seed:videos){
-            Log.e(TAG,"oncreate:"+seed.getName());
+            Log.v(TAG,"on start seed initializing :"+seed.getName());
             String urlToTorrent = seed.getFiles().get(0).getTorrentUrl();
-            Log.e(TAG,"default torrent "+urlToTorrent);
             for (File file : seed.getFiles()) {
                 // Set quality if it matches
                 if (file.getResolution().getId().equals(videoQuality)) {
                     urlToTorrent = file.getTorrentUrl();
-                    Log.v(TAG,"proper resolution found");
                 }
             }
             handleActionSeedTorrent(urlToTorrent,seed.getUuid());
-
         }
+        super.onStart(intent, startId);
+    }
+
+    @Override
+    public void onCreate() {
+        Log.v(TAG,"oncreate called");
         super.onCreate();
     }
 
@@ -111,20 +139,57 @@ public class SeedService extends IntentService {
     }
 
     private void handleActionDeleteTorrent(String torrentUrl, String videoUuid) {
-        // TODO: Handle action Foo
-        throw new UnsupportedOperationException("Not yet implemented delete torrent "+videoUuid);
+        Log.v(TAG,"removing seed torrent ");
+
+        if (seeds.size()==0){
+            return;
+        }
+        for (Seed testSeed:seeds){
+            if (videoUuid.equals(testSeed.getUUid())){
+                //delete file
+                java.io.File file = new java.io.File(testSeed.getFilePath());
+                boolean deleted = file.delete();
+                if(deleted){
+                    Log.v(TAG,"deleted file from system");
+                }
+                //stop and remove seed from active torrents
+                testSeed.stop();
+                seeds.remove(testSeed);
+                //remove video from seeded video db
+                videos=(ArrayList)videoDao.getSeeds();
+                for (Video vid:videos){
+                    if (vid.getUuid().equals(videoUuid)){
+                        videoDao.delete(vid);
+                    }
+                }
+
+            }
+        }
     }
-    private void handleActionSeedTorrent(String torrentUrl, String VideoUuid) {
+    private void handleActionSeedTorrent(String torrentUrl, String videoUuid) {
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            if (!sharedPref.getBoolean("pref_torrent_background_seed",false)){
-                Log.e(TAG,"We should not be seeding because seeding not enabled");
+            if (!sharedPref.getBoolean("pref_torrent_seed",false)){
+                Log.v(TAG,"not seeding because seeding not enabled");
                 return;
             }
 
             if (sharedPref.getBoolean("pref_torrent_seed_wifi_only",false) && !(wifiConnection())){
-                Log.e(TAG,"not connected to wifi which is required to seed");
+                Log.v(TAG,"not connected to wifi which is required to seed");
                 return;
             }
+
+            if (sharedPref.getBoolean("pref_torrent_seed_exteral",false) && !(wifiConnection())){
+                Log.v(TAG,"not using internal seed service");
+                return;
+            }
+            //remove oldest stream if space needs to be made.
+            if (seeds.size()+1>seedLimit) {
+                Seed oldSeed=seeds.get(0);
+                handleActionDeleteTorrent("",oldSeed.getUUid());
+                Log.v(TAG,"replacing stream "+oldSeed.toString());
+            }
+
+            Log.v(TAG,"passed tests, starting the seeding of torrent "+torrentUrl);
             TorrentStream torrentStream;
             TorrentOptions torrentOptions = new TorrentOptions.Builder()
                     .saveLocation(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
@@ -133,20 +198,20 @@ public class SeedService extends IntentService {
             torrentStream = TorrentStream.init(torrentOptions);
                 torrentStream.addListener(new TorrentListener() {
 
-
                     @Override
                     public void onStreamStopped() {
-                        Log.e(TAG, "Stopped");
+                        Log.v(TAG, "Stopped");
+                      //  seeds.remove(0);
                     }
 
                     @Override
                     public void onStreamPrepared(Torrent torrent) {
-                        Log.e(TAG, "Prepared "+torrentUrl);
+                        Log.v(TAG, "Prepared "+torrentUrl);
                     }
 
                     @Override
                     public void onStreamStarted(Torrent torrent) {
-                        Log.e(TAG, "Started"+torrentUrl);
+                        Log.v(TAG, "Started "+ torrent.getFileNames()[0]);
                     }
 
                     @Override
@@ -156,18 +221,17 @@ public class SeedService extends IntentService {
 
                     @Override
                     public void onStreamReady(Torrent torrent) {
-                        Log.e(TAG, "stream ready " + torrentUrl);
+                        Log.v(TAG, "stream ready " + torrentUrl);
                     }
 
                     @Override
                     public void onStreamProgress(Torrent torrent, StreamStatus status) {
-                        Log.e(TAG, "streamprogress " + status.toString());
+                     //   Log.v(TAG, "streamprogress " + status.toString());
                     }
                 });
-
-
                 torrentStream.startStream(torrentUrl);
-                Log.e("started seeding",torrentUrl);
+                seeds.add(new Seed(torrentStream,videoUuid));
+                Log.v(TAG,"started seeding "+torrentUrl);
    }
    private Boolean wifiConnection(){
        ConnectivityManager connMgr =
@@ -175,11 +239,9 @@ public class SeedService extends IntentService {
        for (Network network : connMgr.getAllNetworks()) {
            NetworkInfo networkInfo = connMgr.getNetworkInfo(network);
            if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-               Log.d(TAG, "wifi connected: " );
                return true;
            }
        }
-       Log.d(TAG, "wifi not connected: " );
        return false;
    }
 }

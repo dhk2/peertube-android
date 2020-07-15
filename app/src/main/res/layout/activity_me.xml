@@ -123,6 +123,29 @@
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Title" />
     </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/a_me_seeds"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="12dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_baseline_video_library_24"
+                android:drawablePadding="16dp"
+                android:text="@string/title_activity_seeds"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title" />
+        </LinearLayout>
+
+
+
+
+
 
         <LinearLayout
             android:id="@+id/a_me_helpnfeedback"

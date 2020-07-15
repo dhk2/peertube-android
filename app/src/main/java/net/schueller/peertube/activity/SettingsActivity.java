@@ -66,12 +66,12 @@ public class SettingsActivity extends CommonActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
-            if (sharedPref.getBoolean("pref_torrent_background_seed",false)){
+            if (sharedPref.getBoolean("pref_torrent_seed",false)){
                 findPreference("pref_torrent_settings").setVisible(true);
             } else {
                 findPreference("pref_torrent_settings").setVisible(false);
             }
-            findPreference("pref_torrent_background_seed").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            findPreference("pref_torrent_seed").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     Boolean enabled=(Boolean)newValue;
@@ -84,20 +84,27 @@ public class SettingsActivity extends CommonActivity {
                 }
             });
 
-
-            //enable libre torrent seeding options if it is installed
+/*
+            //enable app based torrent seeding options if they are installed
             PackageManager pm = getContext().getPackageManager();
             List<ApplicationInfo> appList = pm.getInstalledApplications(0);
 
             for (int i = 0; i < appList.size(); i++) {
                 if (appList.get(i).packageName.equals("org.proninyaroslav.libretorrent")) {
                     System.out.println(appList.get(i).packageName);
-                    findPreference("pref_torrent_seed_libre_auto").setVisible(true);
                     findPreference("pref_torrent_seed_libre_interactive").setVisible(true);
+                }
+                if (appList.get(i).packageName.equals("com.biglybt.android.client")) {
+                    System.out.println(appList.get(i).packageName);
+                    findPreference("pref_torrent_seed_bigly_interactive").setVisible(true);
                 }
             }
 
+            for (int i = 0; i < appList.size(); i++) {
 
+            }
+
+*/
         }
     }
 }
