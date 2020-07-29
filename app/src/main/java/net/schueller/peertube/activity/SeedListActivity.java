@@ -90,6 +90,8 @@ public class SeedListActivity extends CommonActivity {
                         emptyView.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);
                     }
+                } else {
+                    Log.e(TAG,"changed seeds is null");
                 }
             }
         });

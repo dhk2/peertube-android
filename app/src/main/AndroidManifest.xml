@@ -18,7 +18,15 @@
         tools:ignore="GoogleAppIndexingWarning">
         <service
             android:name=".service.SeedService"
-            android:exported="false"></service>
+            android:exported="true">
+            android:process=":seedservice"
+        </service>
+        <receiver android:name=".service.DownloadFinishReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+            </intent-filter>
+
+        </receiver>
         <!-- Server Address Book -->
         <activity
             android:name=".activity.ServerAddressBookActivity"

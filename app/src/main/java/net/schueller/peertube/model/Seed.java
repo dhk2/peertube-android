@@ -1,28 +1,38 @@
 package net.schueller.peertube.model;
 
-import android.net.Uri;
-
 import androidx.annotation.NonNull;
 
+import com.frostwire.jlibtorrent.SessionManager;
 import com.github.se_bastiaan.torrentstream.TorrentStream;
 
 import java.util.Date;
 
 public class Seed {
     String uuid;
+    String torrentFileLocal;
     Long started;
+    Long downloadId;
     TorrentStream torrent;
+    SessionManager sessionManager;
+    String mp4FilePath;
+
+
 
     public Seed(TorrentStream torrentStream,String uuid) {
         this.uuid = uuid;
         this.torrent = torrentStream;
         started = new Date().getTime();
     }
+    public Seed(Long downloadId,String uuid,String torrentFileLocal){
+        this.downloadId=downloadId;
+        this.uuid = uuid;
+        this.torrentFileLocal = torrentFileLocal;
+    }
     public String getUUid() {
         return uuid;
     }
     public void stop(){
-        torrent.stopStream();
+        sessionManager.stop();
     }
 
     public Long getStarted() {
@@ -32,25 +42,45 @@ public class Seed {
     public void setStarted(Long started) {
         this.started = started;
     }
-    public String getFilePath (){
-        if (torrent.getCurrentTorrent() == null){
-            return "";
-        }
-        return torrent.getCurrentTorrent().getSaveLocation().getPath();
-    }
     @NonNull
     @Override
     public String toString() {
-        String seedInfo ="Seed"+ "\n"+torrent.getOptions().toString();
-        seedInfo = seedInfo + "\n" + torrent.getOptions().toString();
-        if (torrent.getCurrentTorrent() !=null) {
-            seedInfo = seedInfo + "\n" + torrent.getCurrentTorrentUrl();
-            seedInfo = seedInfo + "\n" + torrent.getCurrentTorrent().getState().toString();
-            seedInfo = seedInfo + "\n" + torrent.getCurrentTorrent().getFileNames()[0];
-            seedInfo = seedInfo + "\n" + torrent.getCurrentTorrent().getVideoFile().toString();
-            seedInfo = seedInfo + "\n" + torrent.getCurrentTorrent().getSaveLocation().getName();
-            seedInfo = seedInfo + "\n" + torrent.getCurrentTorrent().getSaveLocation().getPath();
-        }
+        String seedInfo ="Seed"+ "\n"+sessionManager.toString();
+            seedInfo = seedInfo + "\n" + sessionManager.totalDownload();
+            seedInfo = seedInfo + "\n" + sessionManager.totalUpload();
+            seedInfo = seedInfo + "\n" + sessionManager.uploadRate();
+            seedInfo = seedInfo + "\n" + sessionManager.externalAddress();
         return seedInfo;
+    }
+    public Long getDownloadId() {
+        return downloadId;
+    }
+
+    public void setDownloadId(Long downloadId) {
+        this.downloadId = downloadId;
+    }
+
+    public SessionManager getSessionManager() {
+        return sessionManager;
+    }
+
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
+    public String getTorrentFileLocal() {
+        return torrentFileLocal;
+    }
+
+    public void setTorrentFileLocal(String torrentFileLocal) {
+        this.torrentFileLocal = torrentFileLocal;
+    }
+
+    public String getMp4FilePath() {
+        return mp4FilePath;
+    }
+
+    public void setMp4FilePath(String mp4FilePath) {
+        this.mp4FilePath = mp4FilePath;
     }
 }

@@ -44,7 +44,7 @@ import androidx.core.app.ActivityCompat;
 
 public class Intents {
 
-
+    private static final String TAG ="Intents";
     /**
      * https://troll.tv/videos/watch/6edbd9d1-e3c5-4a6c-8491-646e2020469c
      *
@@ -91,6 +91,13 @@ public class Intents {
         if (sharedPref.getBoolean("pref_torrent_seed_external",false)) {
             int spot = urlToTorrent.lastIndexOf("/");
             String torrentFileName=urlToTorrent.substring(spot+1);
+
+            java.io.File mPath = new java.io.File((Environment.DIRECTORY_DOWNLOADS + "/" + torrentFileName));
+            if (mPath.getAbsoluteFile().exists()) {
+                Log.e(TAG,"torrent file already exists");
+                return;
+            }
+
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(urlToTorrent));
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,torrentFileName);
             DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
@@ -121,5 +128,6 @@ public class Intents {
         // get download service and enqueue file
         DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         manager.enqueue(request);
+
     }
 }
