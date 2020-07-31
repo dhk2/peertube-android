@@ -42,6 +42,8 @@ import net.schueller.peertube.service.SeedService;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.schueller.peertube.service.SeedService.startActionStatusUpdate;
+
 public class SeedListActivity extends CommonActivity {
 
     private String TAG = "SeedListActivity";
@@ -64,7 +66,7 @@ public class SeedListActivity extends CommonActivity {
         setContentView(R.layout.activity_seed_list);
         //todo create new seed list layout with seeding information
         //todo get video thumbnails and such to work when not connected to source server
-
+        startActionStatusUpdate(this);
         createList();
     }
     private void createList() {
@@ -91,7 +93,7 @@ public class SeedListActivity extends CommonActivity {
                         recyclerView.setVisibility(View.GONE);
                     }
                 } else {
-                    Log.e(TAG,"changed seeds is null");
+                    Log.e(TAG,"DB change fired off but seeds array is null");
                 }
             }
         });
@@ -110,7 +112,7 @@ public class SeedListActivity extends CommonActivity {
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder,
                                          int direction) {
 
-                        Log.e(TAG,"swiped to delete seed "+viewHolder.getAdapterPosition());
+                        Log.v(TAG,"swiped to delete seed "+viewHolder.getAdapterPosition());
                         new AlertDialog.Builder(SeedListActivity.this)
                                 .setTitle(getString(R.string.seed_del_alert_title))
                                 .setMessage(getString(R.string.seed_del_alert_msg))
@@ -119,6 +121,7 @@ public class SeedListActivity extends CommonActivity {
                                     Video toBeDeleted = (Video)seeds.get(position);
                                     Log.v(TAG,"going to delete "+toBeDeleted.getName());
                                     SeedService.startActionDeleteTorrent(getApplicationContext(),"",toBeDeleted.getUuid());
+                                    viewModel.delete(toBeDeleted);
                                 })
                                 .setNegativeButton(android.R.string.no, (dialog, which) -> {
                                     seedAdapter.notifyItemChanged(viewHolder.getAdapterPosition());

@@ -18,8 +18,8 @@
         tools:ignore="GoogleAppIndexingWarning">
         <service
             android:name=".service.SeedService"
-            android:exported="true">
-            android:process=":seedservice"
+            android:exported="true"
+            android:process=":seedservice">
         </service>
         <receiver android:name=".service.DownloadFinishReceiver">
             <intent-filter>

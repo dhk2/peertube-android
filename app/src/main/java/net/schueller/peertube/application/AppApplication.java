@@ -35,12 +35,7 @@ public class AppApplication extends Application {
         if (sharedPref.getBoolean("pref_torrent_seed",false) &&
                 !sharedPref.getBoolean("pref_torrent_seed_external",false)){
             Intent intent = new Intent(this,SeedService.class);
-            //throws an error when trying to start application in background.
-            try {
-                startService(intent);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            startService(intent);
         }
         super.onCreate();
         instance = this;

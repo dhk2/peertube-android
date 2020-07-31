@@ -12,17 +12,9 @@ public class Seed {
     String torrentFileLocal;
     Long started;
     Long downloadId;
-    TorrentStream torrent;
     SessionManager sessionManager;
     String mp4FilePath;
 
-
-
-    public Seed(TorrentStream torrentStream,String uuid) {
-        this.uuid = uuid;
-        this.torrent = torrentStream;
-        started = new Date().getTime();
-    }
     public Seed(Long downloadId,String uuid,String torrentFileLocal){
         this.downloadId=downloadId;
         this.uuid = uuid;
@@ -45,11 +37,11 @@ public class Seed {
     @NonNull
     @Override
     public String toString() {
-        String seedInfo ="Seed"+ "\n"+sessionManager.toString();
-            seedInfo = seedInfo + "\n" + sessionManager.totalDownload();
-            seedInfo = seedInfo + "\n" + sessionManager.totalUpload();
-            seedInfo = seedInfo + "\n" + sessionManager.uploadRate();
-            seedInfo = seedInfo + "\n" + sessionManager.externalAddress();
+        String seedInfo ="Seeding :"+mp4FilePath;
+        seedInfo = seedInfo + "\n total download:" + sessionManager.totalDownload();
+        seedInfo = seedInfo + "\n total upload:" + sessionManager.totalUpload();
+        seedInfo = seedInfo + "\n upload rate:" + sessionManager.uploadRate();
+        seedInfo = seedInfo +"\n download rate:"+sessionManager.downloadRate();
         return seedInfo;
     }
     public Long getDownloadId() {

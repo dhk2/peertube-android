@@ -44,13 +44,14 @@ import androidx.core.app.ActivityCompat;
 
 public class Intents {
 
-    private static final String TAG ="Intents";
+
     /**
      * https://troll.tv/videos/watch/6edbd9d1-e3c5-4a6c-8491-646e2020469c
      *
      * @param context context
      * @param video video
      */
+    final private static String TAG = "Intents";
     // TODO, offer which version to download
     public static void Share(Context context, Video video) {
 
@@ -70,15 +71,14 @@ public class Intents {
         Integer videoQuality = sharedPref.getInt("pref_quality", 0);
         String urlToTorrent = video.getFiles().get(0).getTorrentUrl();
         for (File file :video.getFiles()) {
-            // Set quality if it matches
             if (file.getResolution().getId().equals(videoQuality)) {
                 urlToTorrent = file.getTorrentUrl();
             }
         }
         Log.v("Intents","sharing "+urlToTorrent);
-//TODO optimize to take advantage of supported communication channels on open source Torrent software.
+//TODO optimize to take advantage of various supported communication channels for open source Torrent software.
         if (sharedPref.getBoolean("pref_torrent_seed_external_interactive",false)){
-            Log.e("intents-external",urlToTorrent);
+            Log.v(TAG,"launching external torrent manager");
             intent.setAction(Intent.ACTION_VIEW);
             intent.putExtra(Intent.EXTRA_SUBJECT, video.getName());
             intent.putExtra(Intent.EXTRA_TEXT, APIUrlHelper.getShareUrl(context, video.getUuid()));
@@ -89,12 +89,13 @@ public class Intents {
             return;
         }
         if (sharedPref.getBoolean("pref_torrent_seed_external",false)) {
+            Log.v(TAG,"Downloading torrent file for external torrent manager to pick up");
             int spot = urlToTorrent.lastIndexOf("/");
             String torrentFileName=urlToTorrent.substring(spot+1);
 
-            java.io.File mPath = new java.io.File((Environment.DIRECTORY_DOWNLOADS + "/" + torrentFileName));
-            if (mPath.getAbsoluteFile().exists()) {
-                Log.e(TAG,"torrent file already exists");
+            java.io.File testFile = new java.io.File((Environment.DIRECTORY_DOWNLOADS + "/" + torrentFileName));
+            if (testFile.getAbsoluteFile().exists()) {
+                Log.v(TAG,"torrent file already exists, up to third party software to load and seed");
                 return;
             }
 

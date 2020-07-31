@@ -97,14 +97,14 @@ public class VideoPlayActivity extends AppCompatActivity {
         actions.add(remoteAction);
 
         if (videoPlayerFragment.isPaused()){
-            Log.e(TAG,"setting actions with play button");
+            Log.v(TAG,"setting actions with play button");
             actionIntent = new Intent(ACTION_PLAY);
             pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), REQUEST_CODE, actionIntent, 0);
             icon = Icon.createWithResource(getApplicationContext(), com.google.android.exoplayer2.ui.R.drawable.exo_notification_play);
             remoteAction = new RemoteAction(icon, "play", "play the media", pendingIntent);
             actions.add(remoteAction);
         } else {
-            Log.e(TAG,"setting actions with pause button");
+            Log.v(TAG,"setting actions with pause button");
             actionIntent = new Intent(ACTION_PAUSE);
             pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), REQUEST_CODE, actionIntent, 0);
             icon = Icon.createWithResource(getApplicationContext(), com.google.android.exoplayer2.ui.R.drawable.exo_notification_pause);
