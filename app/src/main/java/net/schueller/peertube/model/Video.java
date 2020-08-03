@@ -31,6 +31,7 @@ import net.schueller.peertube.helper.APIUrlHelper;
 import java.util.ArrayList;
 import java.util.Date;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;

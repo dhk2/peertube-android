@@ -129,6 +129,5 @@ public class Intents {
         // get download service and enqueue file
         DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         manager.enqueue(request);
-
     }
 }

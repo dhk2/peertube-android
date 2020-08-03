@@ -42,6 +42,7 @@ import net.schueller.peertube.service.SeedService;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.schueller.peertube.application.AppApplication.getContext;
 import static net.schueller.peertube.service.SeedService.startActionStatusUpdate;
 
 public class SeedListActivity extends CommonActivity {
@@ -93,7 +94,7 @@ public class SeedListActivity extends CommonActivity {
                         recyclerView.setVisibility(View.GONE);
                     }
                 } else {
-                    Log.e(TAG,"DB change fired off but seeds array is null");
+                    Log.e(TAG,"DB change called but changed seeds array is null");
                 }
             }
         });
@@ -120,7 +121,7 @@ public class SeedListActivity extends CommonActivity {
                                     int position = viewHolder.getAdapterPosition();
                                     Video toBeDeleted = (Video)seeds.get(position);
                                     Log.v(TAG,"going to delete "+toBeDeleted.getName());
-                                    SeedService.startActionDeleteTorrent(getApplicationContext(),"",toBeDeleted.getUuid());
+                                    SeedService.startActionDeleteTorrent(getContext(),"",toBeDeleted.getUuid());
                                     viewModel.delete(toBeDeleted);
                                 })
                                 .setNegativeButton(android.R.string.no, (dialog, which) -> {

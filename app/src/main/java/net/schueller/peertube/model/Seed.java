@@ -3,6 +3,7 @@ package net.schueller.peertube.model;
 import androidx.annotation.NonNull;
 
 import com.frostwire.jlibtorrent.SessionManager;
+import com.frostwire.jlibtorrent.Sha1Hash;
 import com.github.se_bastiaan.torrentstream.TorrentStream;
 
 import java.util.Date;
@@ -12,8 +13,8 @@ public class Seed {
     String torrentFileLocal;
     Long started;
     Long downloadId;
-    SessionManager sessionManager;
     String mp4FilePath;
+    Sha1Hash hash;
 
     public Seed(Long downloadId,String uuid,String torrentFileLocal){
         this.downloadId=downloadId;
@@ -22,9 +23,6 @@ public class Seed {
     }
     public String getUUid() {
         return uuid;
-    }
-    public void stop(){
-        sessionManager.stop();
     }
 
     public Long getStarted() {
@@ -38,10 +36,6 @@ public class Seed {
     @Override
     public String toString() {
         String seedInfo ="Seeding :"+mp4FilePath;
-        seedInfo = seedInfo + "\n total download:" + sessionManager.totalDownload();
-        seedInfo = seedInfo + "\n total upload:" + sessionManager.totalUpload();
-        seedInfo = seedInfo + "\n upload rate:" + sessionManager.uploadRate();
-        seedInfo = seedInfo +"\n download rate:"+sessionManager.downloadRate();
         return seedInfo;
     }
     public Long getDownloadId() {
@@ -50,14 +44,6 @@ public class Seed {
 
     public void setDownloadId(Long downloadId) {
         this.downloadId = downloadId;
-    }
-
-    public SessionManager getSessionManager() {
-        return sessionManager;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
     }
 
     public String getTorrentFileLocal() {
@@ -74,5 +60,13 @@ public class Seed {
 
     public void setMp4FilePath(String mp4FilePath) {
         this.mp4FilePath = mp4FilePath;
+    }
+
+    public Sha1Hash getHash() {
+        return hash;
+    }
+
+    public void setHash(Sha1Hash hash) {
+        this.hash = hash;
     }
 }

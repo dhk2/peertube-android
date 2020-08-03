@@ -80,23 +80,6 @@ public class SettingsActivity extends CommonActivity {
                     return (boolean) preference.isEnabled();
                 }
             });
-
-/*
-            //enable app based torrent seeding options if they are installed
-            PackageManager pm = getContext().getPackageManager();
-            List<ApplicationInfo> appList = pm.getInstalledApplications(0);
-
-            for (int i = 0; i < appList.size(); i++) {
-                if (appList.get(i).packageName.equals("org.proninyaroslav.libretorrent")) {
-                    System.out.println(appList.get(i).packageName);
-                    findPreference("pref_torrent_seed_libre_interactive").setVisible(true);
-                }
-                if (appList.get(i).packageName.equals("com.biglybt.android.client")) {
-                    System.out.println(appList.get(i).packageName);
-                    findPreference("pref_torrent_seed_bigly_interactive").setVisible(true);
-                }
-            }
-*/
         }
     }
 }

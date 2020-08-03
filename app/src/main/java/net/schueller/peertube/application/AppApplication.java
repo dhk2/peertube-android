@@ -20,9 +20,6 @@ package net.schueller.peertube.application;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-
 import net.schueller.peertube.service.SeedService;
 
 public class AppApplication extends Application {
@@ -30,13 +27,8 @@ public class AppApplication extends Application {
 
     @Override
     public void onCreate() {
-        //If configured to seed videos internally, start seed service
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPref.getBoolean("pref_torrent_seed",false) &&
-                !sharedPref.getBoolean("pref_torrent_seed_external",false)){
-            Intent intent = new Intent(this,SeedService.class);
-            startService(intent);
-        }
+        Intent intent = new Intent(this,SeedService.class);
+        startService(intent);
         super.onCreate();
         instance = this;
     }

@@ -361,7 +361,7 @@ public class VideoMetaDataFragment extends Fragment {
         if (!sharedPref.getBoolean("pref_torrent_seed",false)){
             Toast.makeText(context, "Seeding disabled in settings", Toast.LENGTH_SHORT).show();
         } else {
-            if (sharedPref.getBoolean("pref_torrent_seed_external",false)){
+            if (sharedPref.getBoolean("pref_torrent_seed_external",false) || sharedPref.getBoolean("pref_torrent_seed_external_interactive",false) ){
                 Log.v(TAG,"Seeding with external torrent manager");
                 Intents.SeedWithExternal(context,video);
                 return;
