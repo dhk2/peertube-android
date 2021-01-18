@@ -127,57 +127,6 @@ public class WebviewFragment extends Fragment {
 
 
 
-
-
-                moreButton=activity.findViewById((R.id.moreButton));
-                moreButton.setOnClickListener(v -> {
-
-                    PopupMenu popup = new PopupMenu(context, v);
-                    popup.setOnMenuItemClickListener(menuItem -> {
-                        switch (menuItem.getItemId()) {
-                            case R.id.halfspeed:
-                                webView.loadUrl("javascript:videojsPlayer.playbackRate(.5)");
-                                return true;
-                            case R.id.normalspeed:
-                                webView.loadUrl("javascript:videojsPlayer.playbackRate(1)");
-                                return true;
-                            case R.id.doublespeed:
-                                webView.loadUrl("javascript:videojsPlayer.playbackRate(2)");
-                                return true;
-                            case R.id.dumb:
-                                /*
-                                webView.evaluateJavascript("videojsPlayer.networkState() ", new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String s) {
-                                        Log.d("WTF", s); // Print "test"
-                                        // data = s; // The value that I would like to return
-                                    }
-                                });
-                                return true;
-
-                                 */
-                            /*case R.id.video_details:
-                                webView.evaluateJavascript("Android.debug('test')", new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String s) {
-                                        Log.d("WTF", s); // Print "test"
-                                        // data = s; // The value that I would like to return
-                                    }
-                                });
-                                return true;
-                            */
-                            case R.id.cancel:
-
-                                Log.e("WTF","figure out cancel");
-                                return true;
-                            default:
-                                return false;
-                        }
-                    });
-                    popup.inflate(R.menu.play_menu);
-                    popup.show();
-
-                });
                 webView = activity.findViewById(R.id.playerWebview);
                 WebViewClient webViewClient = new WebViewClient();
                 WebSettings webSettings = webView.getSettings();
