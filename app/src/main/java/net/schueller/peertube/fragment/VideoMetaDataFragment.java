@@ -258,17 +258,18 @@ public class VideoMetaDataFragment extends Fragment {
         });
 
         // video player options
-        TextView videoOptions = activity.findViewById(R.id.exo_more);
-        videoOptions.setText(R.string.video_more_icon);
-        new Iconics.IconicsBuilder().ctx(context).on(videoOptions).build();
+        if (null != mService) {
+            TextView videoOptions = activity.findViewById(R.id.exo_more);
+            videoOptions.setText(R.string.video_more_icon);
+            new Iconics.IconicsBuilder().ctx(context).on(videoOptions).build();
 
-        videoOptions.setOnClickListener(v -> {
-            VideoOptionsFragment videoOptionsFragment =
-                    VideoOptionsFragment.newInstance(mService, video.getFiles());
-            videoOptionsFragment.show(getActivity().getSupportFragmentManager(),
-                    VideoOptionsFragment.TAG);
-        });
-
+            videoOptions.setOnClickListener(v -> {
+                VideoOptionsFragment videoOptionsFragment =
+                        VideoOptionsFragment.newInstance(mService, video.getFiles());
+                videoOptionsFragment.show(getActivity().getSupportFragmentManager(),
+                        VideoOptionsFragment.TAG);
+            });
+        }
     }
 
     void updateVideoRating(Video video) {

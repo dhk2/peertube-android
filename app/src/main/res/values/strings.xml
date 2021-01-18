@@ -69,6 +69,8 @@
     <string name="clear_search_history_prompt">Do you want to permanently delete the search history?</string>
     <string name="pref_description_accept_insecure">Ignore insecure connections. Use this only if you know the server you are connecting to. Requires App Restart.</string>
     <string name="pref_title_accept_insecure">Disable SSL Certificate Check</string>
+    <string name="pref_title_webview_player">Webview Video Player</string>
+    <string name="pref_description_webview_player">Video playback via a webview. This supports p2p in videos and livestreams. (Alpha, not stable!)</string>
     <!-- languages -->
     <string name="ab">Abkhazian</string>
     <string name="aa">Afar</string>
