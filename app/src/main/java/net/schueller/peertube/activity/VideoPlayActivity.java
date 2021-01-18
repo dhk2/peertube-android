@@ -44,23 +44,13 @@ import android.util.Log;
 import android.util.Rational;
 import android.util.TypedValue;
 
-import android.view.KeyEvent;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager;
-import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 
-import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
 
 import net.schueller.peertube.R;
 import net.schueller.peertube.application.AppApplication;
@@ -81,15 +71,16 @@ import static com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_
 import static com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_PLAY;
 import static com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_STOP;
 
-public class VideoPlayActivity extends AppCompatActivity  {
+public class VideoPlayActivity extends AppCompatActivity {
 
     private static final String TAG = "VideoPlayActivity";
     private WebviewFragment webviewFragment;
+    private VideoPlayerFragment videoPlayerFragment;
     static boolean floatMode = false;
 
     private static final int REQUEST_CODE = 101;
     private BroadcastReceiver receiver;
-    boolean playing =false;
+
     //This can only be called when in entering pip mode which can't happen if the device doesn't support pip mode.
     @SuppressLint("NewApi")
     public void makePipControls() {
@@ -137,7 +128,7 @@ public class VideoPlayActivity extends AppCompatActivity  {
 
     public void changedToPipMode() {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        VideoPlayerFragment videoPlayerFragment = (VideoPlayerFragment) fragmentManager.findFragmentById(R.id.video_player_fragment);
+        videoPlayerFragment = (VideoPlayerFragment) fragmentManager.findFragmentById(R.id.video_player_fragment);
 
         assert videoPlayerFragment != null;
         videoPlayerFragment.showControls(false);
@@ -211,11 +202,11 @@ public class VideoPlayActivity extends AppCompatActivity  {
 
         if (sharedPref.getBoolean(getString(R.string.pref_webview_player_key),false)){
             setContentView(R.layout.activity_video_play_webview);
-            Log.e(TAG,"using webview");
+            Log.e(TAG,"Using webview");
         }
         else {
             setContentView(R.layout.activity_video_play);
-            Log.e(TAG,"using normal activity view ");
+            Log.e(TAG,"Using exoplayer ");
         }
         // get video ID
         Intent intent = getIntent();
@@ -253,6 +244,7 @@ public class VideoPlayActivity extends AppCompatActivity  {
                 Log.v(TAG, "oncreate same video playing currently");
             }
         }
+
         // if we are in landscape set the video to fullscreen
         int orientation = this.getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -284,7 +276,15 @@ public class VideoPlayActivity extends AppCompatActivity  {
 
 
         if (sharedPref.getBoolean(getString(R.string.pref_webview_player_key),false)){
+            if (TextUtils.isEmpty(playingVideo)) {
+                Log.v(TAG, "new intent no video currently playing");
                 webviewFragment.start(videoUuid);
+            } else if (!playingVideo.equals(videoUuid)) {
+                Log.v(TAG, "new intent different video playing currently");
+                webviewFragment.start(videoUuid);
+            } else {
+                Log.v(TAG, "new intent same video playing currently");
+            }
         }
         else {
             if (TextUtils.isEmpty(playingVideo)) {
@@ -321,16 +321,33 @@ public class VideoPlayActivity extends AppCompatActivity  {
     }
 
     private void setOrientation(Boolean isLandscape) {
+        WebviewFragment  webviewFragment=null;
+        VideoPlayerFragment videoPlayerFragment=null;
+        RelativeLayout.LayoutParams params;
+        Log.e(TAG,"set orientation for landscape = "+isLandscape);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(AppApplication.getContext());
         FragmentManager fragmentManager = getSupportFragmentManager();
-        VideoPlayerFragment videoPlayerFragment = (VideoPlayerFragment) fragmentManager.findFragmentById(R.id.video_player_fragment);
-        VideoMetaDataFragment videoMetaFragment = (VideoMetaDataFragment) fragmentManager.findFragmentById(R.id.video_meta_data_fragment);
+        if (sharedPref.getBoolean(getString(R.string.pref_webview_player_key),false)){
+            webviewFragment = (WebviewFragment) fragmentManager.findFragmentById(R.id.webview_fragment);
+            assert webviewFragment != null;
+            params = (RelativeLayout.LayoutParams) webviewFragment.requireView().getLayoutParams();
+        } else {
+            videoPlayerFragment = (VideoPlayerFragment) fragmentManager.findFragmentById(R.id.video_player_fragment);
+            assert videoPlayerFragment != null;
+            params = (RelativeLayout.LayoutParams) videoPlayerFragment.requireView().getLayoutParams();
+        }
 
-        assert videoPlayerFragment != null;
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) videoPlayerFragment.requireView().getLayoutParams();
+        VideoMetaDataFragment videoMetaFragment = (VideoMetaDataFragment) fragmentManager.findFragmentById(R.id.video_meta_data_fragment);
+        params.height = FrameLayout.LayoutParams.MATCH_PARENT;
         params.width = FrameLayout.LayoutParams.MATCH_PARENT;
         params.height = isLandscape ? FrameLayout.LayoutParams.MATCH_PARENT : (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 250, getResources().getDisplayMetrics());
 
-        videoPlayerFragment.requireView().setLayoutParams(params);
+        if (sharedPref.getBoolean(getString(R.string.pref_webview_player_key),false)){
+            webviewFragment.requireView().setLayoutParams(params);
+        } else {
+            videoPlayerFragment.requireView().setLayoutParams(params);
+            videoPlayerFragment.setIsFullscreen(isLandscape);
+        }
 
         if (videoMetaFragment != null) {
             FragmentTransaction transaction = fragmentManager.beginTransaction()
@@ -343,9 +360,9 @@ public class VideoPlayActivity extends AppCompatActivity  {
             }
 
             transaction.commit();
+        }   else {
+            Log.v(TAG,"meta fragment is null");
         }
-
-        videoPlayerFragment.setIsFullscreen(isLandscape);
 
         if ( isLandscape ) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -358,6 +375,9 @@ public class VideoPlayActivity extends AppCompatActivity  {
     protected void onDestroy() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(AppApplication.getContext());
         if (sharedPref.getBoolean(getString(R.string.pref_webview_player_key),false)){
+            //Should destroy webview or add to seed array of active webview once implemented
+            webviewFragment.pauseVideo();
+            webviewFragment=null;
             Log.v(TAG,"destroy webview or redirect to background seeding");
         }
         else {
@@ -388,7 +408,8 @@ public class VideoPlayActivity extends AppCompatActivity  {
         super.onStop();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(AppApplication.getContext());
         if (sharedPref.getBoolean(getString(R.string.pref_webview_player_key),false)){
-            Log.v(TAG,"should stop webview");
+            //Shouldn't stop seeding
+            webviewFragment.pauseVideo();
         }
         else {
             VideoPlayerFragment videoPlayerFragment = (VideoPlayerFragment)
